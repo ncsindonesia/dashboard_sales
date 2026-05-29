@@ -10,34 +10,58 @@
 <body id="body-root" class="bg-slate-900 text-slate-100 min-h-screen p-6 font-sans transition-colors duration-300">
 
   <div class="max-w-7xl mx-auto">
-    <header class="mb-8 border-b border-slate-700 pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4" id="main-header">
+    <header class="mb-8 border-b border-slate-700 pb-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4" id="main-header">
       <div>
         <h1 class="text-3xl font-bold text-sky-400">📊 NeoCrop Real-Time Dashboard</h1>
         <p id="sub-header" class="text-slate-400 text-sm mt-1">Monitoring Sales, Sisa Piutang Kios, dan Real-Time Stok Gudang</p>
       </div>
       
-      <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-        <button id="btn-toggle-mode" class="flex items-center gap-2 bg-slate-800 text-slate-200 hover:bg-slate-700 px-4 py-2.5 rounded-xl border border-slate-700 text-sm font-semibold cursor-pointer transition-all w-full md:w-auto justify-center">
+      <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+        <button id="btn-toggle-mode" class="flex items-center gap-2 bg-slate-800 text-slate-200 hover:bg-slate-700 px-4 py-2.5 rounded-xl border border-slate-700 text-sm font-semibold cursor-pointer transition-all w-full lg:w-auto justify-center">
           <span id="icon-mode">☀️</span> <span id="text-mode">Mode Terang</span>
         </button>
 
-        <div id="wrapper-filter" class="flex items-center gap-3 bg-slate-800 p-3 rounded-xl border border-slate-700 w-full md:w-auto">
-          <label for="filter-bulan" id="lbl-bulan" class="text-sm font-semibold text-slate-300 whitespace-nowrap">📆 Pilih Bulan:</label>
-          <select id="filter-bulan" class="bg-slate-700 text-slate-100 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full p-2 border border-slate-600 outline-none cursor-pointer">
-            <option value="ALL">Semua Periode</option>
-            <option value="1">Januari</option>
-            <option value="2">Februari</option>
-            <option value="3">Maret</option>
-            <option value="4">April</option>
-            <option value="5" selected>Mei</option>
-            <option value="6">Juni</option>
-            <option value="7">Juli</option>
-            <option value="8">Agustus</option>
-            <option value="9">September</option>
-            <option value="10">Oktober</option>
-            <option value="11">November</option>
-            <option value="12">Desember</option>
-          </select>
+        <div id="wrapper-filter" class="flex flex-wrap items-center gap-3 bg-slate-800 p-3 rounded-xl border border-slate-700 w-full lg:w-auto">
+          <div class="flex items-center gap-1.5 flex-1 lg:flex-none">
+            <label for="filter-tahun" id="lbl-tahun" class="text-xs font-semibold text-slate-300 whitespace-nowrap">📅 Tahun:</label>
+            <select id="filter-tahun" class="bg-slate-700 text-slate-100 text-xs rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full lg:w-24 p-2 border border-slate-600 outline-none cursor-pointer">
+              <option value="ALL">Semua</option>
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-1.5 flex-1 lg:flex-none">
+            <label for="filter-bulan" id="lbl-bulan" class="text-xs font-semibold text-slate-300 whitespace-nowrap">📆 Bulan:</label>
+            <select id="filter-bulan" class="bg-slate-700 text-slate-100 text-xs rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full lg:w-32 p-2 border border-slate-600 outline-none cursor-pointer">
+              <option value="ALL">Semua Periode</option>
+              <option value="1">Januari</option>
+              <option value="2">Februari</option>
+              <option value="3">Maret</option>
+              <option value="4">April</option>
+              <option value="5" selected>Mei</option>
+              <option value="6">Juni</option>
+              <option value="7">Juli</option>
+              <option value="8">Agustus</option>
+              <option value="9">September</option>
+              <option value="10">Oktober</option>
+              <option value="11">November</option>
+              <option value="12">Desember</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-1.5 flex-1 lg:flex-none">
+            <label for="filter-sales" id="lbl-sales" class="text-xs font-semibold text-slate-300 whitespace-nowrap">👤 Sales:</label>
+            <select id="filter-sales" class="bg-slate-700 text-slate-100 text-xs rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full lg:w-36 p-2 border border-slate-600 outline-none cursor-pointer">
+              <option value="ALL">Semua Sales</option>
+              <option value="Faiz">Faiz</option>
+              <option value="Muh. Khabib">Muh. Khabib</option>
+              <option value="Harlan">Harlan</option>
+              <option value="Salafudin">Salafudin</option>
+            </select>
+          </div>
         </div>
       </div>
     </header>
@@ -59,7 +83,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <div class="card-element bg-slate-800 p-6 rounded-xl border border-slate-700 h-[420px] transition-all">
-        <h3 class="text-lg font-semibold mb-2 text-slate-200 heading-text">📈 Performa Penjualan Per Sales</h3>
+        <h3 class="text-lg font-semibold mb-2 text-slate-200 heading-text">🎯 % Capaian Target Performa Penjualan</h3>
         <canvas id="chartSales" class="max-h-[320px]"></canvas>
       </div>
       <div class="card-element bg-slate-800 p-6 rounded-xl border border-slate-700 h-[420px] transition-all">
@@ -68,15 +92,41 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 mb-8">
-      <div class="card-element bg-slate-800 p-6 rounded-xl border border-slate-700 h-[450px] flex flex-col transition-all">
-        <h3 class="text-lg font-semibold mb-3 text-slate-200 heading-text">📋 Daftar Stok Gudang</h3>
-        <div class="overflow-y-auto flex-1 pr-1 border border-slate-700 rounded-lg inner-table-border">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <div class="card-element bg-slate-800 rounded-xl border border-slate-700 lg:col-span-2 flex flex-col transition-all h-[340px] overflow-hidden">
+        <div class="p-4 border-b border-slate-700 flex justify-between items-center inner-border-b">
+          <h3 class="text-base font-semibold text-slate-200 heading-text">📊 Tabel Detail Target & Capaian Sales</h3>
+        </div>
+        <div class="overflow-x-auto flex-1">
           <table class="w-full text-left text-sm text-slate-300 table-content">
-            <thead class="bg-slate-700 text-xs uppercase text-slate-400 sticky top-0 table-head">
+            <thead class="bg-slate-700 text-xs uppercase text-slate-400 table-head">
               <tr>
-                <th class="p-4">Nama Produk</th>
-                <th class="p-4 text-center">Stok Riil</th>
+                <th class="p-3.5">Nama Sales</th>
+                <th class="p-3.5">Target</th>
+                <th class="p-3.5">Pencapaian</th>
+                <th class="p-3.5">Sisa Target</th>
+                <th class="p-3.5 text-center">Capaian</th>
+              </tr>
+            </thead>
+            <tbody id="tabel-target-sales">
+              <tr>
+                <td colspan="5" class="p-4 text-center text-slate-500">Memuat data target...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-element bg-slate-800 rounded-xl border border-slate-700 flex flex-col transition-all h-[340px] overflow-hidden">
+        <div class="p-4 border-b border-slate-700 inner-border-b">
+          <h3 class="text-base font-semibold text-slate-200 heading-text">📋 Daftar Real-Time Stok Gudang</h3>
+        </div>
+        <div class="overflow-y-auto flex-1 max-h-[270px] scrollbar-thin scrollbar-thumb-slate-700">
+          <table class="w-full text-left text-sm text-slate-300 table-content">
+            <thead class="bg-slate-700 text-xs uppercase text-slate-400 sticky top-0 z-10 table-head">
+              <tr>
+                <th class="p-3.5">Nama Produk</th>
+                <th class="p-3.5 text-center">Stok</th>
               </tr>
             </thead>
             <tbody id="tabel-stok-ringkas">
@@ -92,7 +142,6 @@
     <div class="card-element bg-slate-800 rounded-xl border border-slate-700 overflow-hidden transition-all">
       <div class="p-6 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 inner-border-b">
         <h3 class="text-lg font-semibold text-slate-200 heading-text">📋 Rekap Pelunasan Sisa Piutang Kios</h3>
-        
         <div class="flex items-center gap-2 text-sm text-slate-400 sub-text">
           <span>Tampilkan</span>
           <select id="page-size" class="bg-slate-700 text-slate-100 rounded px-2 py-1 border border-slate-600 outline-none cursor-pointer">
@@ -142,17 +191,22 @@
     const URL_API_SALES = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Data_Sales?key=${API_KEY}`;
     const URL_API_PAYMENT = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Sales_Payment?key=${API_KEY}`;
     const URL_API_STOK = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Stok_Master?key=${API_KEY}`;
+    const URL_API_TARGET = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Target_Sales?key=${API_KEY}`;
 
     let rawSalesData = [];
     let rawPaymentData = [];
     let rawStockData = [];
-    let currentProcessedData = [];
+    let rawTargetData = [];
+    
+    let currentProcessedPiutang = [];
+    let currentProcessedTarget = [];
     
     let chartInstance1 = null;
     let chartInstance2 = null;
 
     let currentPage = 1;
     let pageSize = 10;
+
     let isLightMode = false;
 
     function convertRowsToJSON(rows) {
@@ -177,7 +231,7 @@
     }
 
     function formatRupiah(angka) {
-      return "Rp " + Number(angka).toLocaleString('id-ID');
+      return "Rp " + Math.round(Number(angka)).toLocaleString('id-ID');
     }
 
     function renderStockSection() {
@@ -192,31 +246,31 @@
       rawStockData.forEach(item => {
         const namaProduk = item.Produk;
         const totalStok = cleanNumber(item.Stok);
-
         if (!namaProduk) return;
 
         const warnaStok = totalStok <= 5 ? 'text-rose-500 dark:text-rose-400 font-bold' : (totalStok <= 20 ? 'text-amber-500 dark:text-amber-400' : 'text-emerald-500 dark:text-emerald-400');
         const borderClass = isLightMode ? 'border-slate-200 hover:bg-slate-100' : 'border-slate-700/40 hover:bg-slate-700/20';
-        const row = `
+        tbodyStok.innerHTML += `
           <tr class="border-b ${borderClass}">
-            <td class="p-4 font-medium">${namaProduk}</td>
-            <td class="p-4 text-center ${warnaStok}">${totalStok.toLocaleString('id-ID')}</td>
+            <td class="p-3.5 font-medium">${namaProduk}</td>
+            <td class="p-3.5 text-center ${warnaStok}">${totalStok.toLocaleString('id-ID')}</td>
           </tr>
         `;
-        tbodyStok.innerHTML += row;
       });
     }
 
-    function processData(selectedMonth) {
-      let filteredSales = rawSalesData;
-      
-      if (selectedMonth !== "ALL") {
-        filteredSales = rawSalesData.filter(item => {
-          if (!item.Tanggal_Order) return false;
-          const parts = item.Tanggal_Order.split("/");
-          return parseInt(parts[1], 10) === parseInt(selectedMonth, 10);
-        });
-      }
+    function processData(selectedYear, selectedMonth, selectedSales) {
+      let filteredSales = rawSalesData.filter(item => {
+        if (!item.Tanggal_Order) return false;
+        const parts = item.Tanggal_Order.split("/");
+        const itemYear = parts[2] ? parts[2].trim() : "";
+        const itemMonth = parts[1] ? parseInt(parts[1], 10).toString() : "";
+
+        const matchYear = (selectedYear === "ALL" || itemYear === selectedYear);
+        const matchMonth = (selectedMonth === "ALL" || itemMonth === selectedMonth);
+        
+        return matchYear && matchMonth;
+      });
 
       let paymentSummary = {};
       filteredSales.forEach(s => {
@@ -243,39 +297,91 @@
         }
       });
 
-      currentProcessedData = Object.values(paymentSummary);
+      let arrPiutangGlobal = Object.values(paymentSummary);
 
-      let totalOmset = 0, totalBayar = 0, totalPiutang = 0;
-      // PERBAIKAN UTAMA: Deklarasi objek statusMap agar tidak menimbulkan eror undefined
+      let cardOmset = 0, cardBayar = 0, cardPiutang = 0;
       let statusMap = { "LUNAS": 0, "BELUM LUNAS": 0 };
 
-      currentProcessedData.forEach(p => {
-        totalOmset += p.Total_Tagihan;
-        totalBayar += p.Total_Bayar;
-        totalPiutang += p.Sisa_Piutang;
-        if (statusMap[p.Status] !== undefined) {
-          statusMap[p.Status]++;
+      arrPiutangGlobal.forEach(p => {
+        if (selectedSales === "ALL" || p.Nama_Sales === selectedSales) {
+          cardOmset += p.Total_Tagihan;
+          cardBayar += p.Total_Bayar;
+          cardPiutang += p.Sisa_Piutang;
+          if (statusMap[p.Status] !== undefined) statusMap[p.Status]++;
         }
       });
 
-      document.getElementById('txt-omset').innerText = formatRupiah(totalOmset);
-      document.getElementById('txt-terbayar').innerText = formatRupiah(totalBayar);
-      document.getElementById('txt-piutang').innerText = formatRupiah(totalPiutang);
+      document.getElementById('txt-omset').innerText = formatRupiah(cardOmset);
+      document.getElementById('txt-terbayar').innerText = formatRupiah(cardBayar);
+      document.getElementById('txt-piutang').innerText = formatRupiah(cardPiutang);
 
-      const urutanSalesSesuaiRequest = ["Faiz", "Muh. Khabib", "Harlan", "Salafudin"];
+      const listSalesOrder = ["Faiz", "Muh. Khabib", "Harlan", "Salafudin"];
       
-      let salesMap = { "Faiz": 0, "Muh. Khabib": 0, "Harlan": 0, "Salafudin": 0 };
-      filteredSales.forEach(s => {
-        if (s.Nama_Sales && salesMap[s.Nama_Sales] !== undefined) {
-          salesMap[s.Nama_Sales] += cleanNumber(s.Total_Harga || s.Total_harga);
+      let chartLabels = [];
+      let chartPercentages = [];
+      let chartRealValues = [];
+      let chartRemainingValues = [];
+      let calculatedTargetArray = [];
+
+      listSalesOrder.forEach(nama => {
+        let totalNilaiTarget = 0;
+
+        if (selectedMonth === "ALL") {
+          let targetRows = rawTargetData.filter(t => 
+            t.Nama_Sales === nama && 
+            (selectedYear === "ALL" || t.Tahun === selectedYear)
+          );
+          if(targetRows.length > 0) {
+            targetRows.forEach(row => totalNilaiTarget += cleanNumber(row.Target_Bulanan));
+          } else {
+            totalNilaiTarget = 100000000;
+          }
+        } else {
+          let targetRow = rawTargetData.find(t => 
+            t.Nama_Sales === nama && 
+            (selectedYear === "ALL" || t.Tahun === selectedYear) &&
+            parseInt(t.Bulan, 10) === parseInt(selectedMonth, 10)
+          );
+          totalNilaiTarget = targetRow ? cleanNumber(targetRow.Target_Bulanan) : 100000000;
         }
+        
+        let nilaiPencapaianReal = 0;
+        filteredSales.forEach(s => {
+          if (s.Nama_Sales === nama) {
+            nilaiPencapaianReal += cleanNumber(s.Total_Harga || s.Total_harga);
+          }
+        });
+
+        let sisaTarget = totalNilaiTarget - nilaiPencapaianReal;
+        if (sisaTarget < 0) sisaTarget = 0;
+        let persentaseCapaian = totalNilaiTarget > 0 ? Math.round((nilaiPencapaianReal / totalNilaiTarget) * 100) : 0;
+
+        calculatedTargetArray.push({
+          Nama_Sales: nama,
+          Target: totalNilaiTarget,
+          Pencapaian: nilaiPencapaianReal,
+          Sisa: sisaTarget,
+          Persen: persentaseCapaian
+        });
+
+        chartLabels.push(nama);
+        chartPercentages.push(persentaseCapaian);
+        chartRealValues.push(nilaiPencapaianReal);
+        chartRemainingValues.push(sisaTarget);
       });
 
-      const chartLabels = urutanSalesSesuaiRequest;
-      const chartDataValues = chartLabels.map(name => salesMap[name]);
+      if (selectedSales !== "ALL") {
+        currentProcessedPiutang = arrPiutangGlobal.filter(p => p.Nama_Sales === selectedSales);
+        currentProcessedTarget = calculatedTargetArray.filter(t => t.Nama_Sales === selectedSales);
+      } else {
+        currentProcessedPiutang = arrPiutangGlobal;
+        currentProcessedTarget = calculatedTargetArray;
+      }
 
       const labelColor = isLightMode ? '#ef4444' : '#f87171';
       const goalColor = isLightMode ? '#10b981' : '#34d399';
+      const gridColor = isLightMode ? '#e2e8f0' : '#334155';
+      const ticksColor = isLightMode ? '#64748b' : '#94a3b8';
 
       const floatingTargetPlugin = {
         id: 'floatingTargetPlugin',
@@ -284,29 +390,18 @@
           ctx.save();
           ctx.font = 'bold 10px sans-serif';
           ctx.textAlign = 'center';
-
           chart.data.datasets[0].data.forEach((value, index) => {
-            const targetUtama = 100000000;
-            const sisaTarget = targetUtama - value;
-            
-            let textTampil = "";
-            if (sisaTarget > 0) {
-              textTampil = "Sisa: " + (sisaTarget / 1000000).toFixed(1) + " Jt";
-              ctx.fillStyle = labelColor;
-            } else {
-              textTampil = "🎉 GOAL";
-              ctx.fillStyle = goalColor;
+            const sisa = chartRemainingValues[index];
+            let textTampil = sisa > 0 ? "Sisa: " + (sisa / 1000000).toFixed(1) + " Jt" : "🎉 GOAL";
+            ctx.fillStyle = sisa > 0 ? labelColor : goalColor;
+            if(selectedSales === "ALL" || chartLabels[index] === selectedSales) {
+              const barMeta = chart.getDatasetMeta(0).data[index];
+              ctx.fillText(textTampil, barMeta.x, barMeta.y - 10);
             }
-
-            const barMeta = chart.getDatasetMeta(0).data[index];
-            ctx.fillText(textTampil, barMeta.x, barMeta.y - 10);
           });
           ctx.restore();
         }
       };
-
-      const gridColor = isLightMode ? '#e2e8f0' : '#334155';
-      const ticksColor = isLightMode ? '#64748b' : '#94a3b8';
 
       if (chartInstance1) chartInstance1.destroy();
       chartInstance1 = new Chart(document.getElementById('chartSales'), {
@@ -314,32 +409,33 @@
         data: {
           labels: chartLabels,
           datasets: [{ 
-            label: 'Total Penjualan Riil (Rp)', 
-            data: chartDataValues, 
-            backgroundColor: '#38bdf8', 
-            borderRadius: 6 
+            label: 'Persentase Target', 
+            data: chartPercentages, 
+            backgroundColor: chartLabels.map(l => l === selectedSales ? '#f59e0b' : '#38bdf8'),
+            borderRadius: 5 
           }]
         },
         options: { 
           responsive: true, 
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: {
-              min: 0,
-              max: 100000000,
-              grid: { color: gridColor },
-              ticks: {
-                color: ticksColor,
-                callback: function(value) {
-                  return 'Rp ' + (value / 1000000) + ' Jt';
+          plugins: { 
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const idx = context.dataIndex;
+                  return [
+                    `${context.parsed.y}% Terpenuhi`,
+                    "Pencapaian: " + formatRupiah(chartRealValues[idx]),
+                    "Target: " + formatRupiah(chartRealValues[idx] + chartRemainingValues[idx])
+                  ];
                 }
               }
-            },
-            x: {
-              grid: { display: false },
-              ticks: { color: ticksColor }
             }
+          },
+          scales: {
+            y: { min: 0, max: 100, grid: { color: gridColor }, ticks: { color: ticksColor } },
+            x: { grid: { display: false }, ticks: { color: ticksColor } }
           }
         },
         plugins: [floatingTargetPlugin]
@@ -355,23 +451,43 @@
         options: { 
           responsive: true, 
           maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: { color: ticksColor }
-            }
-          }
+          plugins: { legend: { labels: { color: ticksColor } } }
         }
       });
 
-      renderTable();
+      renderTargetTableOnly();
+      renderPiutangTable();
     }
 
-    function renderTable() {
+    function renderTargetTableOnly() {
+      const tbody = document.getElementById('tabel-target-sales');
+      tbody.innerHTML = "";
+
+      if (currentProcessedTarget.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Tidak ada data target sales.</td></tr>`;
+        return;
+      }
+
+      currentProcessedTarget.forEach(t => {
+        const borderClass = isLightMode ? 'border-slate-200 hover:bg-slate-100' : 'border-slate-700/50 hover:bg-slate-700/30';
+        tbody.innerHTML += `
+          <tr class="border-b ${borderClass}">
+            <td class="p-3.5 font-semibold text-sky-500 dark:text-sky-400">${t.Nama_Sales}</td>
+            <td class="p-3.5 text-slate-400">${formatRupiah(t.Target)}</td>
+            <td class="p-3.5 text-emerald-400">${formatRupiah(t.Pencapaian)}</td>
+            <td class="p-3.5 text-rose-400">${t.Sisa > 0 ? formatRupiah(t.Sisa) : '🎉 GOAL'}</td>
+            <td class="p-3.5 text-center font-bold text-sky-400">${t.Persen}%</td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderPiutangTable() {
       const tbody = document.getElementById('tabel-piutang');
       tbody.innerHTML = "";
 
-      if (currentProcessedData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Tidak ada data transaksi.</td></tr>`;
+      if (currentProcessedPiutang.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Tidak ada data piutang kios.</td></tr>`;
         document.getElementById('pagination-info').innerText = "Menampilkan 0 dari 0 data";
         document.getElementById('btn-prev').disabled = true;
         document.getElementById('btn-next').disabled = true;
@@ -379,7 +495,7 @@
         return;
       }
 
-      const totalItems = currentProcessedData.length;
+      const totalItems = currentProcessedPiutang.length;
       const totalPages = Math.ceil(totalItems / pageSize);
       
       if (currentPage > totalPages) currentPage = totalPages;
@@ -387,15 +503,14 @@
 
       const startIndex = (currentPage - 1) * pageSize;
       const endIndex = Math.min(startIndex + pageSize, totalItems);
-
-      const pagedData = currentProcessedData.slice(startIndex, startIndex + pageSize);
+      const pagedData = currentProcessedPiutang.slice(startIndex, startIndex + pageSize);
 
       pagedData.forEach(p => {
         const badgeColor = p.Status === "LUNAS" ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/20 text-rose-600 dark:text-rose-400";
         const borderClass = isLightMode ? 'border-slate-200 hover:bg-slate-100' : 'border-slate-700/50 hover:bg-slate-700/30';
         const txtKiosColor = isLightMode ? 'text-slate-700' : 'text-slate-200';
         
-        const row = `
+        tbody.innerHTML += `
           <tr class="border-b ${borderClass}">
             <td class="p-4 font-semibold text-sky-500 dark:text-sky-400">${p.Nama_Sales}</td>
             <td class="p-4 ${txtKiosColor}">${p.Nama_Kios}</td>
@@ -405,31 +520,20 @@
             <td class="p-4"><span class="px-2.5 py-1 rounded text-xs font-bold ${badgeColor}">${p.Status}</span></td>
           </tr>
         `;
-        tbody.innerHTML += row;
       });
 
       document.getElementById('pagination-info').innerText = `Menampilkan ${startIndex + 1}-${endIndex} dari ${totalItems} data`;
-
       document.getElementById('btn-prev').disabled = currentPage === 1;
       document.getElementById('btn-next').disabled = currentPage === totalPages;
 
       const numbersContainer = document.getElementById('pagination-numbers');
       numbersContainer.innerHTML = "";
       for (let i = 1; i <= totalPages; i++) {
-        let activeClass = "";
-        if (i === currentPage) {
-          activeClass = "bg-sky-500 text-white font-bold";
-        } else {
-          activeClass = isLightMode ? "bg-slate-200 text-slate-700 hover:bg-slate-300" : "bg-slate-700 text-slate-300 hover:bg-slate-600";
-        }
-        
+        let activeClass = i === currentPage ? "bg-sky-500 text-white font-bold" : (isLightMode ? "bg-slate-200 text-slate-700 hover:bg-slate-300" : "bg-slate-700 text-slate-300 hover:bg-slate-600");
         const numBtn = document.createElement('button');
         numBtn.className = `px-2.5 py-1 text-xs rounded transition-all ${activeClass}`;
         numBtn.innerText = i;
-        numBtn.addEventListener('click', () => {
-          currentPage = i;
-          renderTable();
-        });
+        numBtn.addEventListener('click', () => { currentPage = i; renderPiutangTable(); });
         numbersContainer.appendChild(numBtn);
       }
     }
@@ -444,6 +548,10 @@
       const wrapperFilter = document.getElementById('wrapper-filter');
       const lblBulan = document.getElementById('lbl-bulan');
       const filterBulan = document.getElementById('filter-bulan');
+      const lblTahun = document.getElementById('lbl-tahun');
+      const filterTahun = document.getElementById('filter-tahun');
+      const lblSales = document.getElementById('lbl-sales');
+      const filterSales = document.getElementById('filter-sales');
       const pageSizeSelect = document.getElementById('page-size');
 
       btn.addEventListener('click', () => {
@@ -451,100 +559,92 @@
 
         if (isLightMode) {
           body.className = "bg-slate-50 text-slate-800 min-h-screen p-6 font-sans transition-colors duration-300";
-          mainHeader.className = "mb-8 border-b border-slate-200 pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4";
+          mainHeader.className = "mb-8 border-b border-slate-200 pb-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4";
           subHeader.className = "text-slate-500 text-sm mt-1";
-          btn.className = "flex items-center gap-2 bg-white text-slate-700 hover:bg-slate-100 px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold cursor-pointer transition-all w-full md:w-auto justify-center";
-          iconMode.innerText = "🌙";
-          textMode.innerText = "Mode Gelap";
-          wrapperFilter.className = "flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-300 w-full md:w-auto";
-          lblBulan.className = "text-sm font-semibold text-slate-600 whitespace-nowrap";
-          filterBulan.className = "bg-slate-100 text-slate-800 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full p-2 border border-slate-300 outline-none cursor-pointer";
+          btn.className = "flex items-center gap-2 bg-white text-slate-700 hover:bg-slate-100 px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold cursor-pointer transition-all w-full lg:w-auto justify-center";
+          iconMode.innerText = "🌙"; textMode.innerText = "Mode Gelap";
+          wrapperFilter.className = "flex flex-wrap items-center gap-3 bg-white p-3 rounded-xl border border-slate-300 w-full lg:w-auto";
+          lblBulan.className = "text-xs font-semibold text-slate-600 whitespace-nowrap";
+          filterBulan.className = "bg-slate-100 text-slate-800 text-xs rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full lg:w-32 p-2 border border-slate-300 outline-none cursor-pointer";
+          lblTahun.className = "text-xs font-semibold text-slate-600 whitespace-nowrap";
+          filterTahun.className = "bg-slate-100 text-slate-800 text-xs rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full lg:w-24 p-2 border border-slate-300 outline-none cursor-pointer";
+          lblSales.className = "text-xs font-semibold text-slate-600 whitespace-nowrap";
+          filterSales.className = "bg-slate-100 text-slate-800 text-xs rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full lg:w-36 p-2 border border-slate-300 outline-none cursor-pointer";
           pageSizeSelect.className = "bg-slate-100 text-slate-800 rounded px-2 py-1 border border-slate-300 outline-none cursor-pointer";
 
-          document.querySelectorAll('.card-element').forEach(el => {
-            el.className = "card-element bg-white p-6 rounded-xl border border-slate-200 transition-all shadow-sm";
-          });
-          document.querySelectorAll('.heading-text').forEach(el => el.className = "text-lg font-semibold mb-2 text-slate-800 heading-text");
+          document.querySelectorAll('.card-element').forEach(el => { el.className = "card-element bg-white rounded-xl border border-slate-200 transition-all shadow-sm"; });
+          document.querySelectorAll('.heading-text').forEach(el => el.className = "text-base font-semibold text-slate-800 heading-text");
           document.querySelectorAll('.title-card').forEach(el => el.className = "text-slate-500 text-sm font-semibold uppercase tracking-wider title-card");
-          document.querySelectorAll('.inner-table-border').forEach(el => el.className = "overflow-y-auto flex-1 pr-1 border border-slate-200 rounded-lg inner-table-border");
           document.querySelectorAll('.table-content').forEach(el => el.className = "w-full text-left text-sm text-slate-600 table-content");
-          document.querySelectorAll('.table-head').forEach(el => el.className = "bg-slate-100 text-xs uppercase text-slate-500 sticky top-0 table-head");
-          document.querySelectorAll('.inner-border-b').forEach(el => el.className = "p-6 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 inner-border-b");
+          document.querySelectorAll('.table-head').forEach(el => el.className = "bg-slate-100 text-xs uppercase text-slate-500 table-head");
+          document.querySelectorAll('.inner-border-b').forEach(el => el.className = "p-4 border-b border-slate-200 inner-border-b");
           document.querySelectorAll('.inner-border-t').forEach(el => el.className = "p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center text-sm text-slate-500 pagination-bar inner-border-t");
-          document.querySelectorAll('.sub-text').forEach(el => el.className = "flex items-center gap-2 text-sm text-slate-500 sub-text");
-
         } else {
           body.className = "bg-slate-900 text-slate-100 min-h-screen p-6 font-sans transition-colors duration-300";
-          mainHeader.className = "mb-8 border-b border-slate-700 pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4";
+          mainHeader.className = "mb-8 border-b border-slate-700 pb-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4";
           subHeader.className = "text-slate-400 text-sm mt-1";
-          btn.className = "flex items-center gap-2 bg-slate-800 text-slate-200 hover:bg-slate-700 px-4 py-2.5 rounded-xl border border-slate-700 text-sm font-semibold cursor-pointer transition-all w-full md:w-auto justify-center";
-          iconMode.innerText = "☀️";
-          textMode.innerText = "Mode Terang";
-          wrapperFilter.className = "flex items-center gap-3 bg-slate-800 p-3 rounded-xl border border-slate-700 w-full md:w-auto";
-          lblBulan.className = "text-sm font-semibold text-slate-300 whitespace-nowrap";
-          filterBulan.className = "bg-slate-700 text-slate-100 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full p-2 border border-slate-600 outline-none cursor-pointer";
+          btn.className = "flex items-center gap-2 bg-slate-800 text-slate-200 hover:bg-slate-700 px-4 py-2.5 rounded-xl border border-slate-700 text-sm font-semibold cursor-pointer transition-all w-full lg:w-auto justify-center";
+          iconMode.innerText = "☀️"; textMode.innerText = "Mode Terang";
+          wrapperFilter.className = "flex flex-wrap items-center gap-3 bg-slate-800 p-3 rounded-xl border border-slate-700 w-full lg:w-auto";
+          lblBulan.className = "text-xs font-semibold text-slate-300 whitespace-nowrap";
+          filterBulan.className = "bg-slate-700 text-slate-100 text-xs rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full lg:w-32 p-2 border border-slate-600 outline-none cursor-pointer";
+          lblTahun.className = "text-xs font-semibold text-slate-300 whitespace-nowrap";
+          filterTahun.className = "bg-slate-700 text-slate-100 text-xs rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full lg:w-24 p-2 border border-slate-600 outline-none cursor-pointer";
+          lblSales.className = "text-xs font-semibold text-slate-300 whitespace-nowrap";
+          filterSales.className = "bg-slate-700 text-slate-100 text-xs rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full lg:w-36 p-2 border border-slate-600 outline-none cursor-pointer";
           pageSizeSelect.className = "bg-slate-700 text-slate-100 rounded px-2 py-1 border border-slate-600 outline-none cursor-pointer";
 
-          document.querySelectorAll('.card-element').forEach(el => {
-            el.className = "card-element bg-slate-800 p-6 rounded-xl border border-slate-700 transition-all";
-          });
-          document.querySelectorAll('.heading-text').forEach(el => el.className = "text-lg font-semibold mb-2 text-slate-200 heading-text");
+          document.querySelectorAll('.card-element').forEach(el => { el.className = "card-element bg-slate-800 rounded-xl border border-slate-700 transition-all"; });
+          document.querySelectorAll('.heading-text').forEach(el => el.className = "text-base font-semibold text-slate-200 heading-text");
           document.querySelectorAll('.title-card').forEach(el => el.className = "text-slate-400 text-sm font-semibold uppercase tracking-wider title-card");
-          document.querySelectorAll('.inner-table-border').forEach(el => el.className = "overflow-y-auto flex-1 pr-1 border border-slate-700 rounded-lg inner-table-border");
           document.querySelectorAll('.table-content').forEach(el => el.className = "w-full text-left text-sm text-slate-300 table-content");
-          document.querySelectorAll('.table-head').forEach(el => el.className = "bg-slate-700 text-xs uppercase text-slate-400 sticky top-0 table-head");
-          document.querySelectorAll('.inner-border-b').forEach(el => el.className = "p-6 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 inner-border-b");
+          document.querySelectorAll('.table-head').forEach(el => el.className = "bg-slate-700 text-xs uppercase text-slate-400 table-head");
+          document.querySelectorAll('.inner-border-b').forEach(el => el.className = "p-4 border-b border-slate-700 inner-border-b");
           document.querySelectorAll('.inner-border-t').forEach(el => el.className = "p-4 bg-slate-800 border-t border-slate-700 flex justify-between items-center text-sm text-slate-400 pagination-bar inner-border-t");
-          document.querySelectorAll('.sub-text').forEach(el => el.className = "flex items-center gap-2 text-sm text-slate-400 sub-text");
         }
 
-        const activeMonth = document.getElementById('filter-bulan').value;
-        processData(activeMonth);
+        processData(filterTahun.value, filterBulan.value, filterSales.value);
         renderStockSection();
       });
     }
 
     async function initDashboard() {
       try {
-        const [resSales, resPayment, resStok] = await Promise.all([
+        const [resSales, resPayment, resStok, resTarget] = await Promise.all([
           fetch(URL_API_SALES).then(r => r.json()),
           fetch(URL_API_PAYMENT).then(r => r.json()),
-          fetch(URL_API_STOK).then(r => r.json())
+          fetch(URL_API_STOK).then(r => r.json()),
+          fetch(URL_API_TARGET).then(r => r.json())
         ]);
 
         rawSalesData = convertRowsToJSON(resSales.values);
         rawPaymentData = convertRowsToJSON(resPayment.values);
         rawStockData = convertRowsToJSON(resStok.values);
+        rawTargetData = convertRowsToJSON(resTarget.values);
 
         setupThemeToggle();
         renderStockSection();
 
-        const filterSelect = document.getElementById('filter-bulan');
-        filterSelect.addEventListener('change', (e) => {
-          currentPage = 1;
-          processData(e.target.value);
-        });
+        const filterTahun = document.getElementById('filter-tahun');
+        const filterBulan = document.getElementById('filter-bulan');
+        const filterSales = document.getElementById('filter-sales');
+
+        filterTahun.addEventListener('change', () => { currentPage = 1; processData(filterTahun.value, filterBulan.value, filterSales.value); });
+        filterBulan.addEventListener('change', () => { currentPage = 1; processData(filterTahun.value, filterBulan.value, filterSales.value); });
+        filterSales.addEventListener('change', () => { currentPage = 1; processData(filterTahun.value, filterBulan.value, filterSales.value); });
 
         const pageSizeSelect = document.getElementById('page-size');
-        pageSizeSelect.addEventListener('change', (e) => {
-          pageSize = parseInt(e.target.value, 10);
-          currentPage = 1;
-          renderTable();
-        });
-
-        document.getElementById('btn-prev').addEventListener('click', () => {
-          if (currentPage > 1) { currentPage--; renderTable(); }
-        });
+        pageSizeSelect.addEventListener('change', (e) => { pageSize = parseInt(e.target.value, 10); currentPage = 1; renderPiutangTable(); });
+        document.getElementById('btn-prev').addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderPiutangTable(); } });
         document.getElementById('btn-next').addEventListener('click', () => {
-          const totalPages = Math.ceil(currentProcessedData.length / pageSize);
-          if (currentPage < totalPages) { currentPage++; renderTable(); }
+          const totalPages = Math.ceil(currentProcessedPiutang.length / pageSize);
+          if (currentPage < totalPages) { currentPage++; renderPiutangTable(); }
         });
 
-        processData(filterSelect.value);
+        processData(filterTahun.value, filterBulan.value, filterSales.value);
 
       } catch (err) {
         console.error("Gagal memuat API:", err);
-        document.getElementById('tabel-piutang').innerHTML = `<tr><td colspan="6" class="p-4 text-center text-rose-400">Gagal memuat database Google API!</td></tr>`;
       }
     }
 
