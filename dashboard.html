@@ -259,205 +259,418 @@
       });
     }
 
-    function processData(selectedYear, selectedMonth, selectedSales) {
-      let filteredSales = rawSalesData.filter(item => {
-        if (!item.Tanggal_Order) return false;
-        const parts = item.Tanggal_Order.split("/");
-        const itemYear = parts[2] ? parts[2].trim() : "";
-        const itemMonth = parts[1] ? parseInt(parts[1], 10).toString() : "";
+    // function processData(selectedYear, selectedMonth, selectedSales) {
+    //   let filteredSales = rawSalesData.filter(item => {
+    //     if (!item.Tanggal_Order) return false;
+    //     const parts = item.Tanggal_Order.split("/");
+    //     const itemYear = parts[2] ? parts[2].trim() : "";
+    //     const itemMonth = parts[1] ? parseInt(parts[1], 10).toString() : "";
 
-        const matchYear = (selectedYear === "ALL" || itemYear === selectedYear);
-        const matchMonth = (selectedMonth === "ALL" || itemMonth === selectedMonth);
+    //     const matchYear = (selectedYear === "ALL" || itemYear === selectedYear);
+    //     const matchMonth = (selectedMonth === "ALL" || itemMonth === selectedMonth);
         
-        return matchYear && matchMonth;
-      });
+    //     return matchYear && matchMonth;
+    //   });
 
-      let paymentSummary = {};
-      filteredSales.forEach(s => {
-        if (!s.Nama_Kios) return;
-        if (!paymentSummary[s.Nama_Kios]) {
-          paymentSummary[s.Nama_Kios] = {
-            Nama_Kios: s.Nama_Kios,
-            Nama_Sales: s.Nama_Sales,
-            Total_Tagihan: 0,
-            Total_Bayar: 0,
-            Sisa_Piutang: 0,
-            Status: "LUNAS"
-          };
-        }
-        paymentSummary[s.Nama_Kios].Total_Tagihan += cleanNumber(s.Total_Harga || s.Total_harga);
-      });
+    //   let paymentSummary = {};
+    //   filteredSales.forEach(s => {
+    //     if (!s.Nama_Kios) return;
+    //     if (!paymentSummary[s.Nama_Kios]) {
+    //       paymentSummary[s.Nama_Kios] = {
+    //         Nama_Kios: s.Nama_Kios,
+    //         Nama_Sales: s.Nama_Sales,
+    //         Total_Tagihan: 0,
+    //         Total_Bayar: 0,
+    //         Sisa_Piutang: 0,
+    //         Status: "LUNAS"
+    //       };
+    //     }
+    //     paymentSummary[s.Nama_Kios].Total_Tagihan += cleanNumber(s.Total_Harga || s.Total_harga);
+    //   });
 
-      rawPaymentData.forEach(p => {
-        if (paymentSummary[p.Nama_Kios]) {
-          paymentSummary[p.Nama_Kios].Total_Bayar = cleanNumber(p.Total_Bayar);
-          const sisa = paymentSummary[p.Nama_Kios].Total_Tagihan - paymentSummary[p.Nama_Kios].Total_Bayar;
-          paymentSummary[p.Nama_Kios].Sisa_Piutang = sisa > 0 ? sisa : 0;
-          paymentSummary[p.Nama_Kios].Status = sisa > 0 ? "BELUM LUNAS" : "LUNAS";
-        }
-      });
+    //   rawPaymentData.forEach(p => {
+    //     if (paymentSummary[p.Nama_Kios]) {
+    //       paymentSummary[p.Nama_Kios].Total_Bayar = cleanNumber(p.Total_Bayar);
+    //       const sisa = paymentSummary[p.Nama_Kios].Total_Tagihan - paymentSummary[p.Nama_Kios].Total_Bayar;
+    //       paymentSummary[p.Nama_Kios].Sisa_Piutang = sisa > 0 ? sisa : 0;
+    //       paymentSummary[p.Nama_Kios].Status = sisa > 0 ? "BELUM LUNAS" : "LUNAS";
+    //     }
+    //   });
 
-      let arrPiutangGlobal = Object.values(paymentSummary);
+    //   let arrPiutangGlobal = Object.values(paymentSummary);
 
-      let cardOmset = 0, cardBayar = 0, cardPiutang = 0;
-      let statusMap = { "LUNAS": 0, "BELUM LUNAS": 0 };
+    //   let cardOmset = 0, cardBayar = 0, cardPiutang = 0;
+    //   let statusMap = { "LUNAS": 0, "BELUM LUNAS": 0 };
 
-      arrPiutangGlobal.forEach(p => {
-        if (selectedSales === "ALL" || p.Nama_Sales === selectedSales) {
-          cardOmset += p.Total_Tagihan;
-          cardBayar += p.Total_Bayar;
-          cardPiutang += p.Sisa_Piutang;
-          if (statusMap[p.Status] !== undefined) statusMap[p.Status]++;
-        }
-      });
+    //   arrPiutangGlobal.forEach(p => {
+    //     if (selectedSales === "ALL" || p.Nama_Sales === selectedSales) {
+    //       cardOmset += p.Total_Tagihan;
+    //       cardBayar += p.Total_Bayar;
+    //       cardPiutang += p.Sisa_Piutang;
+    //       if (statusMap[p.Status] !== undefined) statusMap[p.Status]++;
+    //     }
+    //   });
 
-      document.getElementById('txt-omset').innerText = formatRupiah(cardOmset);
-      document.getElementById('txt-terbayar').innerText = formatRupiah(cardBayar);
-      document.getElementById('txt-piutang').innerText = formatRupiah(cardPiutang);
+    //   document.getElementById('txt-omset').innerText = formatRupiah(cardOmset);
+    //   document.getElementById('txt-terbayar').innerText = formatRupiah(cardBayar);
+    //   document.getElementById('txt-piutang').innerText = formatRupiah(cardPiutang);
 
-      const listSalesOrder = ["Faiz", "Muh. Khabib", "Harlan", "Salafudin"];
+    //   const listSalesOrder = ["Faiz", "Muh. Khabib", "Harlan", "Salafudin"];
       
-      let chartLabels = [];
-      let chartPercentages = [];
-      let chartRealValues = [];
-      let chartRemainingValues = [];
-      let calculatedTargetArray = [];
+    //   let chartLabels = [];
+    //   let chartPercentages = [];
+    //   let chartRealValues = [];
+    //   let chartRemainingValues = [];
+    //   let calculatedTargetArray = [];
 
-      listSalesOrder.forEach(nama => {
-        let totalNilaiTarget = 0;
+    //   listSalesOrder.forEach(nama => {
+    //     let totalNilaiTarget = 0;
 
-        if (selectedMonth === "ALL") {
-          let targetRows = rawTargetData.filter(t => 
-            t.Nama_Sales === nama && 
-            (selectedYear === "ALL" || t.Tahun === selectedYear)
-          );
-          if(targetRows.length > 0) {
-            targetRows.forEach(row => totalNilaiTarget += cleanNumber(row.Target_Bulanan));
-          } else {
-            totalNilaiTarget = 100000000;
-          }
-        } else {
-          let targetRow = rawTargetData.find(t => 
-            t.Nama_Sales === nama && 
-            (selectedYear === "ALL" || t.Tahun === selectedYear) &&
-            parseInt(t.Bulan, 10) === parseInt(selectedMonth, 10)
-          );
-          totalNilaiTarget = targetRow ? cleanNumber(targetRow.Target_Bulanan) : 100000000;
-        }
+    //     if (selectedMonth === "ALL") {
+    //       let targetRows = rawTargetData.filter(t => 
+    //         t.Nama_Sales === nama && 
+    //         (selectedYear === "ALL" || t.Tahun === selectedYear)
+    //       );
+    //       if(targetRows.length > 0) {
+    //         targetRows.forEach(row => totalNilaiTarget += cleanNumber(row.Target_Bulanan));
+    //       } else {
+    //         totalNilaiTarget = 100000000;
+    //       }
+    //     } else {
+    //       let targetRow = rawTargetData.find(t => 
+    //         t.Nama_Sales === nama && 
+    //         (selectedYear === "ALL" || t.Tahun === selectedYear) &&
+    //         parseInt(t.Bulan, 10) === parseInt(selectedMonth, 10)
+    //       );
+    //       totalNilaiTarget = targetRow ? cleanNumber(targetRow.Target_Bulanan) : 100000000;
+    //     }
         
-        let nilaiPencapaianReal = 0;
-        filteredSales.forEach(s => {
-          if (s.Nama_Sales === nama) {
-            nilaiPencapaianReal += cleanNumber(s.Total_Harga || s.Total_harga);
-          }
-        });
+    //     let nilaiPencapaianReal = 0;
+    //     filteredSales.forEach(s => {
+    //       if (s.Nama_Sales === nama) {
+    //         nilaiPencapaianReal += cleanNumber(s.Total_Harga || s.Total_harga);
+    //       }
+    //     });
 
-        let sisaTarget = totalNilaiTarget - nilaiPencapaianReal;
-        if (sisaTarget < 0) sisaTarget = 0;
-        let persentaseCapaian = totalNilaiTarget > 0 ? Math.round((nilaiPencapaianReal / totalNilaiTarget) * 100) : 0;
+    //     let sisaTarget = totalNilaiTarget - nilaiPencapaianReal;
+    //     if (sisaTarget < 0) sisaTarget = 0;
+    //     let persentaseCapaian = totalNilaiTarget > 0 ? Math.round((nilaiPencapaianReal / totalNilaiTarget) * 100) : 0;
 
-        calculatedTargetArray.push({
-          Nama_Sales: nama,
-          Target: totalNilaiTarget,
-          Pencapaian: nilaiPencapaianReal,
-          Sisa: sisaTarget,
-          Persen: persentaseCapaian
-        });
+    //     calculatedTargetArray.push({
+    //       Nama_Sales: nama,
+    //       Target: totalNilaiTarget,
+    //       Pencapaian: nilaiPencapaianReal,
+    //       Sisa: sisaTarget,
+    //       Persen: persentaseCapaian
+    //     });
 
-        chartLabels.push(nama);
-        chartPercentages.push(persentaseCapaian);
-        chartRealValues.push(nilaiPencapaianReal);
-        chartRemainingValues.push(sisaTarget);
-      });
+    //     chartLabels.push(nama);
+    //     chartPercentages.push(persentaseCapaian);
+    //     chartRealValues.push(nilaiPencapaianReal);
+    //     chartRemainingValues.push(sisaTarget);
+    //   });
 
-      if (selectedSales !== "ALL") {
-        currentProcessedPiutang = arrPiutangGlobal.filter(p => p.Nama_Sales === selectedSales);
-        currentProcessedTarget = calculatedTargetArray.filter(t => t.Nama_Sales === selectedSales);
-      } else {
-        currentProcessedPiutang = arrPiutangGlobal;
-        currentProcessedTarget = calculatedTargetArray;
-      }
+    //   if (selectedSales !== "ALL") {
+    //     currentProcessedPiutang = arrPiutangGlobal.filter(p => p.Nama_Sales === selectedSales);
+    //     currentProcessedTarget = calculatedTargetArray.filter(t => t.Nama_Sales === selectedSales);
+    //   } else {
+    //     currentProcessedPiutang = arrPiutangGlobal;
+    //     currentProcessedTarget = calculatedTargetArray;
+    //   }
 
-      const labelColor = isLightMode ? '#ef4444' : '#f87171';
-      const goalColor = isLightMode ? '#10b981' : '#34d399';
-      const gridColor = isLightMode ? '#e2e8f0' : '#334155';
-      const ticksColor = isLightMode ? '#64748b' : '#94a3b8';
+    //   const labelColor = isLightMode ? '#ef4444' : '#f87171';
+    //   const goalColor = isLightMode ? '#10b981' : '#34d399';
+    //   const gridColor = isLightMode ? '#e2e8f0' : '#334155';
+    //   const ticksColor = isLightMode ? '#64748b' : '#94a3b8';
 
-      const floatingTargetPlugin = {
-        id: 'floatingTargetPlugin',
-        afterDatasetsDraw(chart) {
-          const { ctx } = chart;
-          ctx.save();
-          ctx.font = 'bold 10px sans-serif';
-          ctx.textAlign = 'center';
-          chart.data.datasets[0].data.forEach((value, index) => {
-            const sisa = chartRemainingValues[index];
-            let textTampil = sisa > 0 ? "Sisa: " + (sisa / 1000000).toFixed(1) + " Jt" : "🎉 GOAL";
-            ctx.fillStyle = sisa > 0 ? labelColor : goalColor;
-            if(selectedSales === "ALL" || chartLabels[index] === selectedSales) {
-              const barMeta = chart.getDatasetMeta(0).data[index];
-              ctx.fillText(textTampil, barMeta.x, barMeta.y - 10);
-            }
-          });
-          ctx.restore();
-        }
+    //   const floatingTargetPlugin = {
+    //     id: 'floatingTargetPlugin',
+    //     afterDatasetsDraw(chart) {
+    //       const { ctx } = chart;
+    //       ctx.save();
+    //       ctx.font = 'bold 10px sans-serif';
+    //       ctx.textAlign = 'center';
+    //       chart.data.datasets[0].data.forEach((value, index) => {
+    //         const sisa = chartRemainingValues[index];
+    //         let textTampil = sisa > 0 ? "Sisa: " + (sisa / 1000000).toFixed(1) + " Jt" : "🎉 GOAL";
+    //         ctx.fillStyle = sisa > 0 ? labelColor : goalColor;
+    //         if(selectedSales === "ALL" || chartLabels[index] === selectedSales) {
+    //           const barMeta = chart.getDatasetMeta(0).data[index];
+    //           ctx.fillText(textTampil, barMeta.x, barMeta.y - 10);
+    //         }
+    //       });
+    //       ctx.restore();
+    //     }
+    //   };
+
+    //   if (chartInstance1) chartInstance1.destroy();
+    //   chartInstance1 = new Chart(document.getElementById('chartSales'), {
+    //     type: 'bar',
+    //     data: {
+    //       labels: chartLabels,
+    //       datasets: [{ 
+    //         label: 'Persentase Target', 
+    //         data: chartPercentages, 
+    //         backgroundColor: chartLabels.map(l => l === selectedSales ? '#f59e0b' : '#38bdf8'),
+    //         borderRadius: 5 
+    //       }]
+    //     },
+    //     options: { 
+    //       responsive: true, 
+    //       maintainAspectRatio: false,
+    //       plugins: { 
+    //         legend: { display: false },
+    //         tooltip: {
+    //           callbacks: {
+    //             label: function(context) {
+    //               const idx = context.dataIndex;
+    //               return [
+    //                 `${context.parsed.y}% Terpenuhi`,
+    //                 "Pencapaian: " + formatRupiah(chartRealValues[idx]),
+    //                 "Target: " + formatRupiah(chartRealValues[idx] + chartRemainingValues[idx])
+    //               ];
+    //             }
+    //           }
+    //         }
+    //       },
+    //       scales: {
+    //         y: { min: 0, max: 100, grid: { color: gridColor }, ticks: { color: ticksColor } },
+    //         x: { grid: { display: false }, ticks: { color: ticksColor } }
+    //       }
+    //     },
+    //     plugins: [floatingTargetPlugin]
+    //   });
+
+    //   if (chartInstance2) chartInstance2.destroy();
+    //   chartInstance2 = new Chart(document.getElementById('chartPiutang'), {
+    //     type: 'doughnut',
+    //     data: { 
+    //       labels: Object.keys(statusMap), 
+    //       datasets: [{ data: Object.values(statusMap), backgroundColor: ['#34d399', '#f87171'], borderWidth: 0 }] 
+    //     },
+    //     options: { 
+    //       responsive: true, 
+    //       maintainAspectRatio: false,
+    //       plugins: { legend: { labels: { color: ticksColor } } }
+    //     }
+    //   });
+
+    //   renderTargetTableOnly();
+    //   renderPiutangTable();
+    // }
+
+    function processData(selectedYear, selectedMonth, selectedSales) {
+  let filteredSales = rawSalesData.filter(item => {
+    if (!item.Tanggal_Order) return false;
+    const parts = item.Tanggal_Order.split("/");
+    const itemYear = parts[2] ? parts[2].trim() : "";
+    const itemMonth = parts[1] ? parseInt(parts[1], 10).toString() : "";
+
+    const matchYear = (selectedYear === "ALL" || itemYear === selectedYear);
+    const matchMonth = (selectedMonth === "ALL" || itemMonth === selectedMonth);
+    
+    return matchYear && matchMonth;
+  });
+
+  // PERBAIKAN UTAMA: Menggunakan kombinasi Toko + Sales agar data antar sales tidak saling timpa
+  let paymentSummary = {};
+  filteredSales.forEach(s => {
+    if (!s.Nama_Kios || !s.Nama_Sales) return;
+    
+    // Hilangkan spasi hantu di depan/belakang nama secara otomatis (.trim())
+    const namaKiosClean = s.Nama_Kios.trim();
+    const namaSalesClean = s.Nama_Sales.trim();
+    const unikKey = `${namaKiosClean}_${namaSalesClean}`; // Kunci gabungan unik
+
+    if (!paymentSummary[unikKey]) {
+      paymentSummary[unikKey] = {
+        Nama_Kios: namaKiosClean,
+        Nama_Sales: namaSalesClean,
+        Total_Tagihan: 0,
+        Total_Bayar: 0,
+        Sisa_Piutang: 0,
+        Status: "LUNAS"
       };
+    }
+    paymentSummary[unikKey].Total_Tagihan += cleanNumber(s.Total_Harga || s.Total_harga);
+  });
 
-      if (chartInstance1) chartInstance1.destroy();
-      chartInstance1 = new Chart(document.getElementById('chartSales'), {
-        type: 'bar',
-        data: {
-          labels: chartLabels,
-          datasets: [{ 
-            label: 'Persentase Target', 
-            data: chartPercentages, 
-            backgroundColor: chartLabels.map(l => l === selectedSales ? '#f59e0b' : '#38bdf8'),
-            borderRadius: 5 
-          }]
-        },
-        options: { 
-          responsive: true, 
-          maintainAspectRatio: false,
-          plugins: { 
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const idx = context.dataIndex;
-                  return [
-                    `${context.parsed.y}% Terpenuhi`,
-                    "Pencapaian: " + formatRupiah(chartRealValues[idx]),
-                    "Target: " + formatRupiah(chartRealValues[idx] + chartRemainingValues[idx])
-                  ];
-                }
-              }
-            }
-          },
-          scales: {
-            y: { min: 0, max: 100, grid: { color: gridColor }, ticks: { color: ticksColor } },
-            x: { grid: { display: false }, ticks: { color: ticksColor } }
-          }
-        },
-        plugins: [floatingTargetPlugin]
-      });
+  // Mencocokkan data pembayaran dari sheet Sales_Payment
+  rawPaymentData.forEach(p => {
+    if (!p.Nama_Kios || !p.Nama_Sales) return;
+    const namaKiosP = p.Nama_Kios.trim();
+    const namaSalesP = p.Nama_Sales.trim();
+    const unikKeyP = `${namaKiosP}_${namaSalesP}`;
 
-      if (chartInstance2) chartInstance2.destroy();
-      chartInstance2 = new Chart(document.getElementById('chartPiutang'), {
-        type: 'doughnut',
-        data: { 
-          labels: Object.keys(statusMap), 
-          datasets: [{ data: Object.values(statusMap), backgroundColor: ['#34d399', '#f87171'], borderWidth: 0 }] 
-        },
-        options: { 
-          responsive: true, 
-          maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: ticksColor } } }
+    if (paymentSummary[unikKeyP]) {
+      paymentSummary[unikKeyP].Total_Bayar = cleanNumber(p.Total_Bayar);
+      const sisa = paymentSummary[unikKeyP].Total_Tagihan - paymentSummary[unikKeyP].Total_Bayar;
+      paymentSummary[unikKeyP].Sisa_Piutang = sisa > 0 ? sisa : 0;
+      paymentSummary[unikKeyP].Status = sisa > 0 ? "BELUM LUNAS" : "LUNAS";
+    }
+  });
+
+  let arrPiutangGlobal = Object.values(paymentSummary);
+
+  let cardOmset = 0, cardBayar = 0, cardPiutang = 0;
+  let statusMap = { "LUNAS": 0, "BELUM LUNAS": 0 };
+
+  arrPiutangGlobal.forEach(p => {
+    if (selectedSales === "ALL" || p.Nama_Sales === selectedSales) {
+      cardOmset += p.Total_Tagihan;
+      cardBayar += p.Total_Bayar;
+      cardPiutang += p.Sisa_Piutang;
+      if (statusMap[p.Status] !== undefined) statusMap[p.Status]++;
+    }
+  });
+
+  document.getElementById('txt-omset').innerText = formatRupiah(cardOmset);
+  document.getElementById('txt-terbayar').innerText = formatRupiah(cardBayar);
+  document.getElementById('txt-piutang').innerText = formatRupiah(cardPiutang);
+
+  const listSalesOrder = ["Faiz", "Muh. Khabib", "Harlan", "Salafudin"];
+  
+  let chartLabels = [];
+  let chartPercentages = [];
+  let chartRealValues = [];
+  let chartRemainingValues = [];
+  let calculatedTargetArray = [];
+
+  listSalesOrder.forEach(nama => {
+    let totalNilaiTarget = 0;
+
+    if (selectedMonth === "ALL") {
+      let targetRows = rawTargetData.filter(t => 
+        t.Nama_Sales && t.Nama_Sales.trim() === nama && 
+        (selectedYear === "ALL" || t.Tahun === selectedYear)
+      );
+      if(targetRows.length > 0) {
+        targetRows.forEach(row => totalNilaiTarget += cleanNumber(row.Target_Bulanan));
+      } else {
+        totalNilaiTarget = 100000000;
+      }
+    } else {
+      let targetRow = rawTargetData.find(t => 
+        t.Nama_Sales && t.Nama_Sales.trim() === nama && 
+        (selectedYear === "ALL" || t.Tahun === selectedYear) &&
+        parseInt(t.Bulan, 10) === parseInt(selectedMonth, 10)
+      );
+      totalNilaiTarget = targetRow ? cleanNumber(targetRow.Target_Bulanan) : 100000000;
+    }
+    
+    let nilaiPencapaianReal = 0;
+    filteredSales.forEach(s => {
+      if (s.Nama_Sales && s.Nama_Sales.trim() === nama) {
+        nilaiPencapaianReal += cleanNumber(s.Total_Harga || s.Total_harga);
+      }
+    });
+
+    let sisaTarget = totalNilaiTarget - nilaiPencapaianReal;
+    if (sisaTarget < 0) sisaTarget = 0;
+    let persentaseCapaian = totalNilaiTarget > 0 ? Math.round((nilaiPencapaianReal / totalNilaiTarget) * 100) : 0;
+
+    calculatedTargetArray.push({
+      Nama_Sales: nama,
+      Target: totalNilaiTarget,
+      Pencapaian: nilaiPencapaianReal,
+      Sisa: sisaTarget,
+      Persen: persentaseCapaian
+    });
+
+    chartLabels.push(nama);
+    chartPercentages.push(persentaseCapaian);
+    chartRealValues.push(nilaiPencapaianReal);
+    chartRemainingValues.push(sisaTarget);
+  });
+
+  if (selectedSales !== "ALL") {
+    currentProcessedPiutang = arrPiutangGlobal.filter(p => p.Nama_Sales === selectedSales);
+    currentProcessedTarget = calculatedTargetArray.filter(t => t.Nama_Sales === selectedSales);
+  } else {
+    currentProcessedPiutang = arrPiutangGlobal;
+    currentProcessedTarget = calculatedTargetArray;
+  }
+
+  const labelColor = isLightMode ? '#ef4444' : '#f87171';
+  const goalColor = isLightMode ? '#10b981' : '#34d399';
+  const gridColor = isLightMode ? '#e2e8f0' : '#334155';
+  const ticksColor = isLightMode ? '#64748b' : '#94a3b8';
+
+  const floatingTargetPlugin = {
+    id: 'floatingTargetPlugin',
+    afterDatasetsDraw(chart) {
+      const { ctx } = chart;
+      ctx.save();
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'center';
+      chart.data.datasets[0].data.forEach((value, index) => {
+        const sisa = chartRemainingValues[index];
+        let textTampil = sisa > 0 ? "Sisa: " + (sisa / 1000000).toFixed(1) + " Jt" : "🎉 GOAL";
+        ctx.fillStyle = sisa > 0 ? labelColor : goalColor;
+        if(selectedSales === "ALL" || chartLabels[index] === selectedSales) {
+          const barMeta = chart.getDatasetMeta(0).data[index];
+          ctx.fillText(textTampil, barMeta.x, barMeta.y - 10);
         }
       });
-
-      renderTargetTableOnly();
-      renderPiutangTable();
+      ctx.restore();
     }
+  };
+
+  if (chartInstance1) chartInstance1.destroy();
+  chartInstance1 = new Chart(document.getElementById('chartSales'), {
+    type: 'bar',
+    data: {
+      labels: chartLabels,
+      datasets: [{ 
+        label: 'Persentase Target', 
+        data: chartPercentages, 
+        backgroundColor: chartLabels.map(l => l === selectedSales ? '#f59e0b' : '#38bdf8'),
+        borderRadius: 5 
+      }]
+    },
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false,
+      plugins: { 
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const idx = context.dataIndex;
+              return [
+                `${context.parsed.y}% Terpenuhi`,
+                "Pencapaian: " + formatRupiah(chartRealValues[idx]),
+                "Target: " + formatRupiah(chartRealValues[idx] + chartRemainingValues[idx])
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        y: { min: 0, max: 100, grid: { color: gridColor }, ticks: { color: ticksColor } },
+        x: { grid: { display: false }, ticks: { color: ticksColor } }
+      }
+    },
+    plugins: [floatingTargetPlugin]
+  });
+
+  if (chartInstance2) chartInstance2.destroy();
+  chartInstance2 = new Chart(document.getElementById('chartPiutang'), {
+    type: 'doughnut',
+    data: { 
+      labels: Object.keys(statusMap), 
+      datasets: [{ data: Object.values(statusMap), backgroundColor: ['#34d399', '#f87171'], borderWidth: 0 }] 
+    },
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: ticksColor } } }
+    }
+  });
+
+  renderTargetTableOnly();
+  renderPiutangTable();
+}
 
     function renderTargetTableOnly() {
       const tbody = document.getElementById('tabel-target-sales');
