@@ -315,36 +315,48 @@
 
       // Hitung Total Uang Di Bagian Card Atas
       let cardOmset = 0, cardBayar = 0, cardPiutang = 0;
-      let totalBayarMasuk = 0;
-
-      rawFormPayment.forEach(p => {
-        if (!p.Timestamp) return;
-      
-        const tgl = new Date(p.Timestamp);
-      
-        const tahunPayment = tgl.getFullYear().toString();
-        const bulanPayment = (tgl.getMonth() + 1).toString();
-      
+      let bulanPayment = "";
+        let tahunPayment = "";
+        
+        if (p.Timestamp) {
+          const tanggal = p.Timestamp.split(" ")[0];
+          const parts = tanggal.split("/");
+        
+          if (parts.length === 3) {
+            // Jika format MM/DD/YYYY (contoh: 6/19/2026)
+            if (parseInt(parts[0]) <= 12 && parseInt(parts[1]) > 12) {
+              bulanPayment = parts[0];
+              tahunPayment = parts[2];
+            }
+            // Jika format DD/MM/YYYY (contoh: 19/06/2026)
+            else {
+              bulanPayment = parts[1];
+              tahunPayment = parts[2];
+            }
+          }
+        }
+        
         const matchYear =
           selectedYear === "ALL" ||
           tahunPayment === selectedYear;
-      
+        
         const matchMonth =
           selectedMonth === "ALL" ||
-          bulanPayment === selectedMonth;
-      
+          parseInt(bulanPayment, 10) === parseInt(selectedMonth, 10);
+        
         const matchSales =
           selectedSales === "ALL" ||
-          p.Nama_Sales === selectedSales;
-      
+          (p.Nama_Sales && p.Nama_Sales.trim() === selectedSales);
+        
         if (matchYear && matchMonth && matchSales) {
           cardBayar += cleanNumber(
             p.Jumlah_Payment ||
             p["Jumlah Payment"] ||
-            p.Jumlah
+            p.Jumlah ||
+            p["Jumlah Payment "] ||
+            0
           );
         }
-      });
       
       let statusMap = { "LUNAS": 0, "BELUM LUNAS": 0 };
 
@@ -751,6 +763,7 @@
 
         console.log(rawFormPayment[0]);
         console.log(rawFormPayment.length);
+        console.log("Timestamp contoh:", rawFormPayment[0].Timestamp);
 
         setupThemeToggle();
         renderStockSection();
