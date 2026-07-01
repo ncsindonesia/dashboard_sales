@@ -192,11 +192,13 @@
     const URL_API_PAYMENT = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Sales_Payment?key=${API_KEY}`;
     const URL_API_STOK = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Stok_Master?key=${API_KEY}`;
     const URL_API_TARGET = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Target_Sales?key=${API_KEY}`;
+    const URL_API_FORM = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Form Responses 2?key=${API_KEY}`;
 
     let rawSalesData = [];
     let rawPaymentData = [];
     let rawStockData = [];
     let rawTargetData = [];
+    let rawFormPayment = [];
     
     let currentProcessedPiutang = [];
     let currentProcessedTarget = [];
@@ -295,45 +297,17 @@
         paymentSummary[unikKey].Total_Tagihan += cleanNumber(s.Total_Harga || s.Total_harga);
       });
 
-      let filteredPayment = rawPaymentData.filter(p => {
-        if (!p.Tanggal_Payment) return false;
-      
-        const parts = p.Tanggal_Payment.split("/");
-        const paymentYear = parts[2]?.trim();
-        const paymentMonth = parseInt(parts[1], 10).toString();
-      
-        const matchYear =
-          selectedYear === "ALL" ||
-          paymentYear === selectedYear;
-      
-        const matchMonth =
-          selectedMonth === "ALL" ||
-          paymentMonth === selectedMonth;
-      
-        return matchYear && matchMonth;
-      });
-      
-      filteredPayment.forEach(p => {
+      rawPaymentData.forEach(p => {
         if (!p.Nama_Kios || !p.Nama_Sales) return;
-      
         const namaKiosP = p.Nama_Kios.trim();
         const namaSalesP = p.Nama_Sales.trim();
         const unikKeyP = `${namaKiosP}_${namaSalesP}`;
-      
+
         if (paymentSummary[unikKeyP]) {
-          paymentSummary[unikKeyP].Total_Bayar += cleanNumber(
-            p.Total_Bayar || p.Jumlah_Payment
-          );
-      
-          const sisa =
-            paymentSummary[unikKeyP].Total_Tagihan -
-            paymentSummary[unikKeyP].Total_Bayar;
-      
-          paymentSummary[unikKeyP].Sisa_Piutang =
-            sisa > 0 ? sisa : 0;
-      
-          paymentSummary[unikKeyP].Status =
-            sisa > 0 ? "BELUM LUNAS" : "LUNAS";
+          paymentSummary[unikKeyP].Total_Bayar = cleanNumber(p.Total_Bayar);
+          const sisa = paymentSummary[unikKeyP].Total_Tagihan - paymentSummary[unikKeyP].Total_Bayar;
+          paymentSummary[unikKeyP].Sisa_Piutang = sisa > 0 ? sisa : 0;
+          paymentSummary[unikKeyP].Status = sisa > 0 ? "BELUM LUNAS" : "LUNAS";
         }
       });
 
@@ -341,6 +315,36 @@
 
       // Hitung Total Uang Di Bagian Card Atas
       let cardOmset = 0, cardBayar = 0, cardPiutang = 0;
+      let totalBayarMasuk = 0;
+
+      rawFormPayment.forEach(item => {
+        if (!item.Timestamp) return;
+      
+        const datePart = item.Timestamp.split(" ")[0];
+        const parts = datePart.split("/");
+      
+        const year = parts[2];
+        const month = parseInt(parts[1], 10).toString();
+      
+        const matchYear =
+          selectedYear === "ALL" ||
+          year === selectedYear;
+      
+        const matchMonth =
+          selectedMonth === "ALL" ||
+          month === selectedMonth;
+      
+        const matchSales =
+          selectedSales === "ALL" ||
+          item["Nama Sales"] === selectedSales;
+      
+        if (matchYear && matchMonth && matchSales) {
+          totalBayarMasuk += cleanNumber(
+            item["Jumlah Payment"]
+          );
+        }
+      });
+      
       let statusMap = { "LUNAS": 0, "BELUM LUNAS": 0 };
 
       arrPiutangGlobal.forEach(p => {
@@ -353,7 +357,7 @@
       });
 
       document.getElementById('txt-omset').innerText = formatRupiah(cardOmset);
-      document.getElementById('txt-terbayar').innerText = formatRupiah(cardBayar);
+      document.getElementById('txt-terbayar').innerText = formatRupiah(totalBayarMasuk);
       document.getElementById('txt-piutang').innerText = formatRupiah(cardPiutang);
 
       // 3. PROSES TABEL DETAIL TARGET SALES (IKUT FILTER BULAN)
@@ -730,17 +734,22 @@
 
     async function initDashboard() {
       try {
-        const [resSales, resPayment, resStok, resTarget] = await Promise.all([
+        const [resSales, resPayment, resStok, resTarget, resForm] = await Promise.all([
           fetch(URL_API_SALES).then(r => r.json()),
           fetch(URL_API_PAYMENT).then(r => r.json()),
           fetch(URL_API_STOK).then(r => r.json()),
-          fetch(URL_API_TARGET).then(r => r.json())
+          fetch(URL_API_TARGET).then(r => r.json()),
+          fetch(URL_API_FORM).then(r => r.json())
         ]);
 
         rawSalesData = convertRowsToJSON(resSales.values);
         rawPaymentData = convertRowsToJSON(resPayment.values);
         rawStockData = convertRowsToJSON(resStok.values);
         rawTargetData = convertRowsToJSON(resTarget.values);
+        rawFormPayment = convertRowsToJSON(resForm.values);
+
+        console.log(rawFormPayment[0]);
+        console.log(rawFormPayment.length);
 
         setupThemeToggle();
         renderStockSection();
