@@ -295,17 +295,45 @@
         paymentSummary[unikKey].Total_Tagihan += cleanNumber(s.Total_Harga || s.Total_harga);
       });
 
-      rawPaymentData.forEach(p => {
+      let filteredPayment = rawPaymentData.filter(p => {
+        if (!p.Tanggal_Payment) return false;
+      
+        const parts = p.Tanggal_Payment.split("/");
+        const paymentYear = parts[2]?.trim();
+        const paymentMonth = parseInt(parts[1], 10).toString();
+      
+        const matchYear =
+          selectedYear === "ALL" ||
+          paymentYear === selectedYear;
+      
+        const matchMonth =
+          selectedMonth === "ALL" ||
+          paymentMonth === selectedMonth;
+      
+        return matchYear && matchMonth;
+      });
+      
+      filteredPayment.forEach(p => {
         if (!p.Nama_Kios || !p.Nama_Sales) return;
+      
         const namaKiosP = p.Nama_Kios.trim();
         const namaSalesP = p.Nama_Sales.trim();
         const unikKeyP = `${namaKiosP}_${namaSalesP}`;
-
+      
         if (paymentSummary[unikKeyP]) {
-          paymentSummary[unikKeyP].Total_Bayar = cleanNumber(p.Total_Bayar);
-          const sisa = paymentSummary[unikKeyP].Total_Tagihan - paymentSummary[unikKeyP].Total_Bayar;
-          paymentSummary[unikKeyP].Sisa_Piutang = sisa > 0 ? sisa : 0;
-          paymentSummary[unikKeyP].Status = sisa > 0 ? "BELUM LUNAS" : "LUNAS";
+          paymentSummary[unikKeyP].Total_Bayar += cleanNumber(
+            p.Total_Bayar || p.Jumlah_Payment
+          );
+      
+          const sisa =
+            paymentSummary[unikKeyP].Total_Tagihan -
+            paymentSummary[unikKeyP].Total_Bayar;
+      
+          paymentSummary[unikKeyP].Sisa_Piutang =
+            sisa > 0 ? sisa : 0;
+      
+          paymentSummary[unikKeyP].Status =
+            sisa > 0 ? "BELUM LUNAS" : "LUNAS";
         }
       });
 
