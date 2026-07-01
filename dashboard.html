@@ -317,30 +317,31 @@
       let cardOmset = 0, cardBayar = 0, cardPiutang = 0;
       let totalBayarMasuk = 0;
 
-      rawFormPayment.forEach(item => {
-        if (!item.Timestamp) return;
+      rawFormPayment.forEach(p => {
+        if (!p.Timestamp) return;
       
-        const datePart = item.Timestamp.split(" ")[0];
-        const parts = datePart.split("/");
+        const tgl = new Date(p.Timestamp);
       
-        const year = parts[2];
-        const month = parseInt(parts[1], 10).toString();
+        const tahunPayment = tgl.getFullYear().toString();
+        const bulanPayment = (tgl.getMonth() + 1).toString();
       
         const matchYear =
           selectedYear === "ALL" ||
-          year === selectedYear;
+          tahunPayment === selectedYear;
       
         const matchMonth =
           selectedMonth === "ALL" ||
-          month === selectedMonth;
+          bulanPayment === selectedMonth;
       
         const matchSales =
           selectedSales === "ALL" ||
-          item["Nama Sales"] === selectedSales;
+          p.Nama_Sales === selectedSales;
       
         if (matchYear && matchMonth && matchSales) {
-          totalBayarMasuk += cleanNumber(
-            item["Jumlah Payment"]
+          cardBayar += cleanNumber(
+            p.Jumlah_Payment ||
+            p["Jumlah Payment"] ||
+            p.Jumlah
           );
         }
       });
