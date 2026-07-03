@@ -93,7 +93,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      <div class="card-element bg-slate-800 rounded-xl border border-slate-700 lg:col-span-2 flex flex-col transition-all h-[340px] overflow-hidden">
+      <div class="card-element bg-slate-800 rounded-xl border border-slate-700 lg:col-span-2 flex flex-col transition-all overflow-hidden">
         <div class="p-4 border-b border-slate-700 flex justify-between items-center inner-border-b">
           <h3 class="text-base font-semibold text-slate-200 heading-text">📊 Tabel Detail Target & Capaian Sales</h3>
         </div>
@@ -117,11 +117,11 @@
         </div>
       </div>
 
-      <div class="card-element bg-slate-800 rounded-xl border border-slate-700 flex flex-col transition-all h-[340px] overflow-hidden">
+      <div class="card-element bg-slate-800 rounded-xl border border-slate-700 flex flex-col transition-all h-[370px] overflow-hidden">
         <div class="p-4 border-b border-slate-700 inner-border-b">
           <h3 class="text-base font-semibold text-slate-200 heading-text">📋 Daftar Real-Time Stok Gudang</h3>
         </div>
-        <div class="overflow-y-auto flex-1 max-h-[270px] scrollbar-thin scrollbar-thumb-slate-700">
+        <div class="overflow-y-auto flex-1 max-h-[350px] scrollbar-thin scrollbar-thumb-slate-700">
           <table class="w-full text-left text-sm text-slate-300 table-content">
             <thead class="bg-slate-700 text-xs uppercase text-slate-400 sticky top-0 z-10 table-head">
               <tr>
@@ -192,13 +192,13 @@
     const URL_API_PAYMENT = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Sales_Payment?key=${API_KEY}`;
     const URL_API_STOK = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Stok_Master?key=${API_KEY}`;
     const URL_API_TARGET = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Target_Sales?key=${API_KEY}`;
-    const URL_API_FORM = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Form Responses 2?key=${API_KEY}`;
+    const URL_API_FORM_PAYMENT =`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Form Responses 2?key=${API_KEY}`;
 
+    let rawFormPayment = [];
     let rawSalesData = [];
     let rawPaymentData = [];
     let rawStockData = [];
     let rawTargetData = [];
-    let rawFormPayment = [];
     
     let currentProcessedPiutang = [];
     let currentProcessedTarget = [];
@@ -275,82 +275,200 @@
         return matchYear && matchMonth;
       });
 
-      // 2. PROSES REKAP PIUTANG KIOS (MENGGUNAKAN UNIK KUNI TOKO + SALES)
-      let paymentSummary = {};
-      filteredSales.forEach(s => {
-        if (!s.Nama_Kios || !s.Nama_Sales) return;
-        
-        const namaKiosClean = s.Nama_Kios.trim();
-        const namaSalesClean = s.Nama_Sales.trim();
-        const unikKey = `${namaKiosClean}_${namaSalesClean}`;
+      // =====================================
+// REKAP PIUTANG
+// =====================================
+let paymentSummary = {};
 
-        if (!paymentSummary[unikKey]) {
-          paymentSummary[unikKey] = {
-            Nama_Kios: namaKiosClean,
-            Nama_Sales: namaSalesClean,
-            Total_Tagihan: 0,
-            Total_Bayar: 0,
-            Sisa_Piutang: 0,
-            Status: "LUNAS"
-          };
-        }
-        paymentSummary[unikKey].Total_Tagihan += cleanNumber(s.Total_Harga || s.Total_harga);
-      });
+// =====================================
+// 1. AMBIL TOTAL TAGIHAN DARI DATA SALES
+// =====================================
+filteredSales.forEach(s => {
+  if (!s.Nama_Kios || !s.Nama_Sales) return;
 
-      rawPaymentData.forEach(p => {
-        if (!p.Nama_Kios || !p.Nama_Sales) return;
-        const namaKiosP = p.Nama_Kios.trim();
-        const namaSalesP = p.Nama_Sales.trim();
-        const unikKeyP = `${namaKiosP}_${namaSalesP}`;
+  const namaKios = s.Nama_Kios.trim();
+  const namaSales = s.Nama_Sales.trim();
 
-        if (paymentSummary[unikKeyP]) {
-          paymentSummary[unikKeyP].Total_Bayar = cleanNumber(p.Total_Bayar);
-          const sisa = paymentSummary[unikKeyP].Total_Tagihan - paymentSummary[unikKeyP].Total_Bayar;
-          paymentSummary[unikKeyP].Sisa_Piutang = sisa > 0 ? sisa : 0;
-          paymentSummary[unikKeyP].Status = sisa > 0 ? "BELUM LUNAS" : "LUNAS";
-        }
-      });
+  const key = `${namaKios}_${namaSales}`;
 
-      let arrPiutangGlobal = Object.values(paymentSummary);
+  if (!paymentSummary[key]) {
+    paymentSummary[key] = {
+      Nama_Kios: namaKios,
+      Nama_Sales: namaSales,
+      Total_Tagihan: 0,
+      Total_Bayar: 0,
+      Sisa_Piutang: 0,
+      Status: "LUNAS"
+    };
+  }
+
+  paymentSummary[key].Total_Tagihan += cleanNumber(
+    s.Total_Harga || s.Total_harga
+  );
+});
+
+
+// =====================================
+// 2. TOTAL BAYAR
+// =====================================
+if (
+  selectedMonth === "ALL" &&
+  selectedYear === "ALL"
+) {
+  // ==========================
+  // MODE TOTAL KESELURUHAN
+  // ==========================
+  rawPaymentData.forEach(p => {
+
+    if (!p.Nama_Kios || !p.Nama_Sales) return;
+
+    const namaKios = p.Nama_Kios.trim();
+    const namaSales = p.Nama_Sales.trim();
+
+    const key = `${namaKios}_${namaSales}`;
+
+    if (!paymentSummary[key]) {
+      paymentSummary[key] = {
+        Nama_Kios: namaKios,
+        Nama_Sales: namaSales,
+        Total_Tagihan: 0,
+        Total_Bayar: 0,
+        Sisa_Piutang: 0,
+        Status: "LUNAS"
+      };
+    }
+
+    paymentSummary[key].Total_Bayar =
+      cleanNumber(p.Total_Bayar);
+  });
+}
+else {
+  // ==========================
+  // MODE FILTER BULAN / TAHUN
+  // ==========================
+  rawFormPayment.forEach(p => {
+
+    const tanggal =
+      p["Tanggal Payment"] ||
+      p.Timestamp;
+
+    if (!tanggal) return;
+
+    const tanggalOnly =
+      tanggal.split(" ")[0];
+
+    const parts =
+      tanggalOnly.split("/");
+
+    if (parts.length < 3) return;
+
+    const bulan =
+      parseInt(parts[1], 10);
+
+    const tahun =
+      parts[2];
+
+    const matchYear =
+      selectedYear === "ALL" ||
+      tahun === selectedYear;
+
+    const matchMonth =
+      selectedMonth === "ALL" ||
+      bulan === parseInt(selectedMonth, 10);
+
+    const matchSales =
+      selectedSales === "ALL" ||
+      (p["Nama Sales"] || "").trim() === selectedSales;
+
+    if (
+      !matchYear ||
+      !matchMonth ||
+      !matchSales
+    ) {
+      return;
+    }
+
+    const customerId =
+      (p["Customer ID"] || "").trim();
+
+    if (!customerId) return;
+
+    // cari data customer
+    let dataCustomer =
+      rawPaymentData.find(x =>
+        (x.Customer_ID || "").trim() === customerId
+      );
+
+    if (!dataCustomer) {
+      dataCustomer =
+        rawSalesData.find(x =>
+          (x.Customer_ID || "").trim() === customerId
+        );
+    }
+
+    const namaKios =
+      dataCustomer?.Nama_Kios ||
+      customerId;
+
+    const namaSales =
+      dataCustomer?.Nama_Sales ||
+      (p["Nama Sales"] || "").trim();
+
+    const key =
+      `${namaKios.trim()}_${namaSales.trim()}`;
+
+    if (!paymentSummary[key]) {
+      paymentSummary[key] = {
+        Nama_Kios: namaKios.trim(),
+        Nama_Sales: namaSales.trim(),
+        Total_Tagihan: 0,
+        Total_Bayar: 0,
+        Sisa_Piutang: 0,
+        Status: "LUNAS"
+      };
+    }
+
+    paymentSummary[key].Total_Bayar +=
+      cleanNumber(
+        p["Jumlah Payment"]
+      );
+  });
+}
+
+
+// =====================================
+// HITUNG SISA PIUTANG
+// =====================================
+Object.values(paymentSummary).forEach(x => {
+
+  const sisa =
+    x.Total_Tagihan - x.Total_Bayar;
+
+  x.Sisa_Piutang = Math.max(0, sisa);
+
+  if (x.Total_Tagihan === 0 && x.Total_Bayar > 0) {
+    x.Status = "LUNAS";
+  } else {
+    x.Status =
+      x.Sisa_Piutang > 0
+        ? "BELUM LUNAS"
+        : "LUNAS";
+  }
+});
+
+
+// =====================================
+// TAMPILKAN YANG ADA AKTIVITAS
+// =====================================
+let arrPiutangGlobal =
+  Object.values(paymentSummary)
+  .filter(x =>
+    x.Total_Tagihan > 0 ||
+    x.Total_Bayar > 0
+  );
 
       // Hitung Total Uang Di Bagian Card Atas
       let cardOmset = 0, cardBayar = 0, cardPiutang = 0;
-
-// HAPUS blok p.Timestamp di luar loop
-
-rawPaymentData.forEach(p => {
-  let bulanPayment = "";
-  let tahunPayment = "";
-
-  if (p.Timestamp) {
-    const tanggal = p.Timestamp.split(" ")[0];
-    const parts = tanggal.split("/");
-
-    if (parts.length === 3) {
-      if (parseInt(parts[0]) <= 12 && parseInt(parts[1]) > 12) {
-        bulanPayment = parts[0];
-        tahunPayment = parts[2];
-      } else {
-        bulanPayment = parts[1];
-        tahunPayment = parts[2];
-      }
-    }
-  }
-
-  const matchYear = selectedYear === "ALL" || tahunPayment === selectedYear;
-  const matchMonth = selectedMonth === "ALL" || parseInt(bulanPayment, 10) === parseInt(selectedMonth, 10);
-  const matchSales = selectedSales === "ALL" || (p.Nama_Sales && p.Nama_Sales.trim() === selectedSales);
-
-  if (matchYear && matchMonth && matchSales) {
-    cardBayar += cleanNumber(
-      p.Jumlah_Payment ||
-      p["Jumlah Payment"] ||
-      p.Jumlah ||
-      0
-    );
-  }
-});
-      
       let statusMap = { "LUNAS": 0, "BELUM LUNAS": 0 };
 
       arrPiutangGlobal.forEach(p => {
@@ -567,27 +685,86 @@ rawPaymentData.forEach(p => {
     }
 
     function renderTargetTableOnly() {
-      const tbody = document.getElementById('tabel-target-sales');
-      tbody.innerHTML = "";
+  const tbody = document.getElementById('tabel-target-sales');
+  tbody.innerHTML = "";
 
-      if (currentProcessedTarget.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Tidak ada data target sales.</td></tr>`;
-        return;
-      }
+  if (currentProcessedTarget.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="p-4 text-center text-slate-500">
+          Tidak ada data target sales.
+        </td>
+      </tr>
+    `;
+    return;
+  }
 
-      currentProcessedTarget.forEach(t => {
-        const borderClass = isLightMode ? 'border-slate-200 hover:bg-slate-100' : 'border-slate-700/50 hover:bg-slate-700/30';
-        tbody.innerHTML += `
-          <tr class="border-b ${borderClass}">
-            <td class="p-3.5 font-semibold text-sky-500 dark:text-sky-400">${t.Nama_Sales}</td>
-            <td class="p-3.5 text-slate-400">${formatRupiah(t.Target)}</td>
-            <td class="p-3.5 text-emerald-400">${formatRupiah(t.Pencapaian)}</td>
-            <td class="p-3.5 text-rose-400">${t.Sisa > 0 ? formatRupiah(t.Sisa) : '🎉 GOAL'}</td>
-            <td class="p-3.5 text-center font-bold text-sky-400">${t.Persen}%</td>
-          </tr>
-        `;
-      });
-    }
+  let totalTarget = 0;
+  let totalPencapaian = 0;
+  let totalSisa = 0;
+
+  currentProcessedTarget.forEach(t => {
+
+    totalTarget += t.Target;
+    totalPencapaian += t.Pencapaian;
+    totalSisa += t.Sisa;
+
+    const borderClass = isLightMode
+      ? 'border-slate-200 hover:bg-slate-100'
+      : 'border-slate-700/50 hover:bg-slate-700/30';
+
+    tbody.innerHTML += `
+      <tr class="border-b ${borderClass}">
+        <td class="p-3.5 font-semibold text-sky-500 dark:text-sky-400">
+          ${t.Nama_Sales}
+        </td>
+        <td class="p-3.5 text-slate-400">
+          ${formatRupiah(t.Target)}
+        </td>
+        <td class="p-3.5 text-emerald-400">
+          ${formatRupiah(t.Pencapaian)}
+        </td>
+        <td class="p-3.5 text-rose-400">
+          ${t.Sisa > 0 ? formatRupiah(t.Sisa) : 'TERCAPAI'}
+        </td>
+        <td class="p-3.5 text-center font-bold text-sky-400">
+          ${t.Persen}%
+        </td>
+      </tr>
+    `;
+  });
+
+  // Hitung total capaian %
+  const totalPersen =
+    totalTarget > 0
+      ? Math.round((totalPencapaian / totalTarget) * 100)
+      : 0;
+
+  // Tambahkan baris jumlah
+  tbody.innerHTML += `
+    <tr class="border-t-2 border-sky-500 font-bold bg-slate-800/40">
+      <td class="p-3.5 text-amber-400">
+        JUMLAH
+      </td>
+
+      <td class="p-3.5 text-amber-400">
+        ${formatRupiah(totalTarget)}
+      </td>
+
+      <td class="p-3.5 text-emerald-400">
+        ${formatRupiah(totalPencapaian)}
+      </td>
+
+      <td class="p-3.5 text-rose-400">
+        ${formatRupiah(totalSisa)}
+      </td>
+
+      <td class="p-3.5 text-center text-sky-400">
+        ${totalPersen}%
+      </td>
+    </tr>
+  `;
+}
 
     function renderPiutangTable() {
       const tbody = document.getElementById('tabel-piutang');
@@ -740,22 +917,25 @@ rawPaymentData.forEach(p => {
 
     async function initDashboard() {
       try {
-        const [resSales, resPayment, resStok, resTarget, resForm] = await Promise.all([
+        const [
+          resSales,
+          resPayment,
+          resFormPayment,
+          resStok,
+          resTarget
+        ] = await Promise.all([
           fetch(URL_API_SALES).then(r => r.json()),
           fetch(URL_API_PAYMENT).then(r => r.json()),
+          fetch(URL_API_FORM_PAYMENT).then(r => r.json()),
           fetch(URL_API_STOK).then(r => r.json()),
-          fetch(URL_API_TARGET).then(r => r.json()),
-          fetch(URL_API_FORM).then(r => r.json())
+          fetch(URL_API_TARGET).then(r => r.json())
         ]);
 
         rawSalesData = convertRowsToJSON(resSales.values);
         rawPaymentData = convertRowsToJSON(resPayment.values);
+        rawFormPayment = convertRowsToJSON(resFormPayment.values);
         rawStockData = convertRowsToJSON(resStok.values);
         rawTargetData = convertRowsToJSON(resTarget.values);
-        rawFormPayment = convertRowsToJSON(resForm.values);
-
-        console.log(rawFormPayment[0]);
-        console.log(rawFormPayment.length);
 
         setupThemeToggle();
         renderStockSection();
