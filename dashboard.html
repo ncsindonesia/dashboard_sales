@@ -486,10 +486,28 @@ let arrPiutangGlobal =
       document.getElementById('txt-terbayar').innerText = formatRupiah(cardBayar);
       document.getElementById('txt-piutang').innerText = formatRupiah(cardPiutang);
 
-      // 3. PROSES TABEL DETAIL TARGET SALES (IKUT FILTER BULAN)
-      const listSalesOrder = ["Faiz", "Muh. Khabib", "Harlan", "Salafudin", "Wahyu Yunarto", "Others"];
+      // 3. PROSES TABEL DETAIL TARGET SALES (DINAMIS SESUAI SHEET TARGET_SALES)
+      // =========================================================================
+      
+      // Step A: Cari daftar nama sales yang aktif sesuai filter bulan & tahun dari sheet Target_Sales
+      let targetRowsFiltered = rawTargetData.filter(t => {
+        if (!t.Nama_Sales) return false;
+        const matchYear = (selectedYear === "ALL" || t.Tahun === selectedYear);
+        const matchMonth = (selectedMonth === "ALL" || parseInt(t.Bulan, 10) === parseInt(selectedMonth, 10));
+        return matchYear && matchMonth;
+      });
+
+      // Ambil nama-nama sales unik yang ada di sheet Target_Sales pada periode terpilih
+      let listSalesOrder = [...new Set(targetRowsFiltered.map(t => t.Nama_Sales.trim()))];
+
+      // Jika di sheet Target_Sales tidak ada data sama sekali pada periode itu, fallback ke data sales transaksi
+      if (listSalesOrder.length === 0 && selectedMonth !== "ALL") {
+        listSalesOrder = [...new Set(filteredSales.map(s => s.Nama_Sales ? s.Nama_Sales.trim() : "").filter(Boolean))];
+      }
+
       let calculatedTargetArray = [];
 
+      // Step B: Olah angka target dan pencapaian untuk nama-nama sales yang valid
       listSalesOrder.forEach(nama => {
         let totalNilaiTarget = 0;
 
@@ -498,18 +516,14 @@ let arrPiutangGlobal =
             t.Nama_Sales && t.Nama_Sales.trim() === nama && 
             (selectedYear === "ALL" || t.Tahun === selectedYear)
           );
-          if(targetRows.length > 0) {
-            targetRows.forEach(row => totalNilaiTarget += cleanNumber(row.Target_Bulanan));
-          } else {
-            totalNilaiTarget = 100000000;
-          }
+          targetRows.forEach(row => totalNilaiTarget += cleanNumber(row.Target_Bulanan));
         } else {
           let targetRow = rawTargetData.find(t => 
             t.Nama_Sales && t.Nama_Sales.trim() === nama && 
             (selectedYear === "ALL" || t.Tahun === selectedYear) &&
             parseInt(t.Bulan, 10) === parseInt(selectedMonth, 10)
           );
-          totalNilaiTarget = targetRow ? cleanNumber(targetRow.Target_Bulanan) : 100000000;
+          totalNilaiTarget = targetRow ? cleanNumber(targetRow.Target_Bulanan) : 0;
         }
         
         let nilaiPencapaianReal = 0;
@@ -521,7 +535,13 @@ let arrPiutangGlobal =
 
         let sisaTarget = totalNilaiTarget - nilaiPencapaianReal;
         if (sisaTarget < 0) sisaTarget = 0;
-        let persentaseCapaian = totalNilaiTarget > 0 ? Math.round((nilaiPencapaianReal / totalNilaiTarget) * 100) : 0;
+
+        let persentaseCapaian = 0;
+        if (totalNilaiTarget > 0) {
+          persentaseCapaian = Math.round((nilaiPencapaianReal / totalNilaiTarget) * 100);
+        } else if (totalNilaiTarget === 0 && nilaiPencapaianReal > 0) {
+          persentaseCapaian = 100;
+        }
 
         calculatedTargetArray.push({
           Nama_Sales: nama,
