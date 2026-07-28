@@ -239,29 +239,41 @@
     }
 
     function renderStockSection() {
-      const tbodyStok = document.getElementById('tabel-stok-ringkas');
-      tbodyStok.innerHTML = "";
+  const tbodyStok = document.getElementById('tabel-stok-ringkas');
+  tbodyStok.innerHTML = "";
 
-      if (rawStockData.length === 0) {
-        tbodyStok.innerHTML = `<tr><td colspan="2" class="p-4 text-center text-slate-500">Data master stok kosong.</td></tr>`;
-        return;
-      }
+  if (!rawStockData || rawStockData.length === 0) {
+    tbodyStok.innerHTML = `<tr><td colspan="2" class="p-4 text-center text-slate-500">Data master stok kosong.</td></tr>`;
+    return;
+  }
 
-      rawStockData.forEach(item => {
-        const namaProduk = item.Produk;
-        const totalStok = cleanNumber(item.Stok);
-        if (!namaProduk) return;
+  rawStockData.forEach(item => {
+    // 1. Ambil Nama Produk
+    const namaProduk = item.Produk;
+    if (!namaProduk) return;
 
-        const warnaStok = totalStok <= 5 ? 'text-rose-500 dark:text-rose-400 font-bold' : (totalStok <= 20 ? 'text-amber-500 dark:text-amber-400' : 'text-emerald-500 dark:text-emerald-400');
-        const borderClass = isLightMode ? 'border-slate-200 hover:bg-slate-100' : 'border-slate-700/40 hover:bg-slate-700/20';
-        tbodyStok.innerHTML += `
-          <tr class="border-b ${borderClass}">
-            <td class="p-3.5 font-medium">${namaProduk}</td>
-            <td class="p-3.5 text-center ${warnaStok}">${totalStok.toLocaleString('id-ID')}</td>
-          </tr>
-        `;
-      });
-    }
+    // 2. Ambil nilai dari kolom "Stok (Box)"
+    // Mengantisipasi kalau nama kolom pakai spasi/tanpa spasi
+    const rawStokValue = item["Stok (Box)"] || item["Stok(Box)"] || item.Stok || 0;
+    const totalStok = cleanNumber(rawStokValue);
+
+    // 3. Styling warna berdasarkan jumlah stok
+    const warnaStok = totalStok <= 5 
+      ? 'text-rose-500 dark:text-rose-400 font-bold' 
+      : (totalStok <= 20 ? 'text-amber-500 dark:text-amber-400' : 'text-emerald-500 dark:text-emerald-400');
+      
+    const borderClass = isLightMode 
+      ? 'border-slate-200 hover:bg-slate-100' 
+      : 'border-slate-700/40 hover:bg-slate-700/20';
+
+    tbodyStok.innerHTML += `
+      <tr class="border-b ${borderClass}">
+        <td class="p-3.5 font-medium">${namaProduk}</td>
+        <td class="p-3.5 text-center ${warnaStok}">${totalStok.toLocaleString('id-ID')}</td>
+      </tr>
+    `;
+  });
+}
 
     function processData(selectedYear, selectedMonth, selectedSales) {
       // 1. FILTER DATA UTAMA UNTUK CARD DAN TABEL
