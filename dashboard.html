@@ -68,6 +68,18 @@
       </div>
     </header>
 
+    <!-- ============ TAB NAVIGASI ============ -->
+    <div class="flex flex-wrap gap-2 mb-6" id="tab-nav">
+      <button id="tab-btn-main" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-semibold cursor-pointer transition-all bg-sky-500 text-white">
+        📊 Dashboard Utama
+      </button>
+      <button id="tab-btn-spain" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-semibold cursor-pointer transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700">
+        🇪🇸 Spain Program
+      </button>
+    </div>
+
+    <div id="view-main">
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <div class="card-element bg-slate-800 p-6 rounded-xl border border-slate-700 transition-all">
         <h3 class="text-slate-400 text-sm font-semibold uppercase tracking-wider title-card">Total Tagihan (Omset)</h3>
@@ -141,6 +153,43 @@
       </div>
     </div>
 
+    <!-- ============================================= -->
+    <!-- TABEL BARU: REKAP TARGET & CAPAIAN PER KIOS   -->
+    <!-- (rekapan dari sheet Gabungan_Sales_Target,     -->
+    <!--  digabung per Customer_ID, tanpa nama produk)  -->
+    <!-- ============================================= -->
+    <div class="card-element bg-slate-800 rounded-xl border border-slate-700 overflow-hidden transition-all mb-8">
+      <div class="p-6 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 inner-border-b">
+        <h3 class="text-lg font-semibold text-slate-200 heading-text">🎯 Rekap Target &amp; Capaian per Kios</h3>
+        <div class="flex items-center gap-2 text-sm text-slate-400 sub-text w-full sm:w-auto">
+          <input id="search-rekap-kios" type="text" placeholder="🔍 Cari nama kios / sales..."
+            class="bg-slate-700 text-slate-100 rounded-lg px-3 py-2 border border-slate-600 outline-none w-full sm:w-64 focus:ring-sky-500 focus:border-sky-500" />
+        </div>
+      </div>
+
+      <div class="overflow-x-auto max-h-[480px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700">
+        <table class="w-full text-left text-sm text-slate-300 table-content">
+          <thead class="bg-slate-700 text-xs uppercase text-slate-400 sticky top-0 z-10 table-head">
+            <tr>
+              <th class="p-4">Nama Sales</th>
+              <th class="p-4">Nama Kios</th>
+              <th class="p-4">Total Target</th>
+              <th class="p-4">Total Pencapaian</th>
+              <th class="p-4">Sisa Target</th>
+              <th class="p-4 text-center">Capaian</th>
+              <th class="p-4 text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody id="tabel-rekap-kios">
+            <tr>
+              <td colspan="7" class="p-4 text-center text-slate-500">Memuat data rekap...</td>
+            </tr>
+          </tbody>
+          <tfoot id="rekap-kios-foot"></tfoot>
+        </table>
+      </div>
+    </div>
+
     <div class="card-element bg-slate-800 rounded-xl border border-slate-700 overflow-hidden transition-all">
       <div class="p-6 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 inner-border-b">
         <h3 class="text-lg font-semibold text-slate-200 heading-text">📋 Rekap Pelunasan Sisa Piutang Kios</h3>
@@ -184,6 +233,73 @@
         </div>
       </div>
     </div>
+    </div>
+    <!-- ============ AKHIR VIEW UTAMA ============ -->
+
+    <!-- ============================================= -->
+    <!-- VIEW SPAIN PROGRAM (satuan utama: LITER)       -->
+    <!-- ============================================= -->
+    <div id="view-spain" class="hidden">
+
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-sky-400 flex items-center gap-2">🇪🇸 Spain Program — Goes to Spain</h2>
+        <p class="text-slate-400 text-sm mt-1 sub-text">Progres target program insentif. Satuan utama: <span class="font-semibold text-amber-400">Liter</span>.</p>
+      </div>
+
+      <!-- Kartu ringkasan liter -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="card-element bg-slate-800 p-6 rounded-xl border border-slate-700 transition-all">
+          <h3 class="text-slate-400 text-sm font-semibold uppercase tracking-wider title-card">Total Target (Liter)</h3>
+          <p id="spain-target-liter" class="text-4xl font-bold text-sky-400 mt-2">-</p>
+        </div>
+        <div class="card-element bg-slate-800 p-6 rounded-xl border border-slate-700 transition-all">
+          <h3 class="text-slate-400 text-sm font-semibold uppercase tracking-wider title-card">Total Tercapai (Liter)</h3>
+          <p id="spain-terjual-liter" class="text-4xl font-bold text-emerald-400 mt-2">-</p>
+        </div>
+        <div class="card-element bg-slate-800 p-6 rounded-xl border border-slate-700 transition-all">
+          <h3 class="text-slate-400 text-sm font-semibold uppercase tracking-wider title-card">Sisa Target (Liter)</h3>
+          <p id="spain-sisa-liter" class="text-4xl font-bold text-rose-400 mt-2">-</p>
+        </div>
+      </div>
+
+      <!-- Bar progres total -->
+      <div class="card-element bg-slate-800 p-6 rounded-xl border border-slate-700 mb-8 transition-all">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-base font-semibold text-slate-200 heading-text">Progres Total Program</h3>
+          <span id="spain-total-persen" class="text-lg font-bold text-sky-400">0%</span>
+        </div>
+        <div class="w-full bg-slate-700 rounded-full h-4 overflow-hidden">
+          <div id="spain-progress-bar" class="bg-gradient-to-r from-sky-500 to-emerald-400 h-4 rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Tabel detail per kios -->
+      <div class="card-element bg-slate-800 rounded-xl border border-slate-700 overflow-hidden transition-all">
+        <div class="p-6 border-b border-slate-700 inner-border-b">
+          <h3 class="text-lg font-semibold text-slate-200 heading-text">🎯 Detail Capaian per Kios (Liter)</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-300 table-content">
+            <thead class="bg-slate-700 text-xs uppercase text-slate-400 table-head">
+              <tr>
+                <th class="p-4">Nama Sales</th>
+                <th class="p-4">Nama Kios</th>
+                <th class="p-4 text-right">Target (Liter)</th>
+                <th class="p-4 text-right">Tercapai (Liter)</th>
+                <th class="p-4 text-right">Sisa (Liter)</th>
+                <th class="p-4 text-center">Capaian</th>
+                <th class="p-4 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="tabel-spain">
+              <tr><td colspan="7" class="p-4 text-center text-slate-500">Memuat data Spain Program...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+    <!-- ============ AKHIR VIEW SPAIN ============ -->
   </div>
 
   <script>
@@ -195,12 +311,18 @@
     const URL_API_STOK = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Stok_Master?key=${API_KEY}`;
     const URL_API_TARGET = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Target_Sales?key=${API_KEY}`;
     const URL_API_FORM_PAYMENT =`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Form Responses 2?key=${API_KEY}`;
+    const URL_API_GABUNGAN = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Gabungan_Sales_Target?key=${API_KEY}`;
+    const URL_API_CUSTOMER = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Data_Customer?key=${API_KEY}`;
+    const URL_API_SPAIN = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Spain_Program?key=${API_KEY}`;
 
     let rawFormPayment = [];
     let rawSalesData = [];
     let rawPaymentData = [];
     let rawStockData = [];
     let rawTargetData = [];
+    let rawGabunganData = [];
+    let rawCustomerData = [];
+    let rawSpainData = [];
     
     let currentProcessedPiutang = [];
     let currentProcessedTarget = [];
@@ -212,6 +334,7 @@
     let pageSize = 10;
 
     let isLightMode = false;
+    let currentView = 'main';
 
     function convertRowsToJSON(rows) {
       if (!rows || rows.length === 0) return [];
@@ -274,6 +397,267 @@
     `;
   });
 }
+
+    // =====================================================
+    // PETA LOOKUP: Customer_ID  ->  Nama_Kios
+    // Sumber utama Data_Customer, dilengkapi Data_Sales.
+    // Kalau tidak ketemu, fallback pakai Customer_ID.
+    // =====================================================
+    function buildKiosMap() {
+      const map = {};
+
+      // Sumber 1: Data_Customer (master pelanggan)
+      rawCustomerData.forEach(c => {
+        const id = (c.Customer_ID || c["Customer ID"] || "").toString().trim();
+        const kios = (c.Nama_Kios || c["Nama Kios"] || c.Nama_Toko || "").toString().trim();
+        if (id && kios) map[id] = kios;
+      });
+
+      // Sumber 2: Data_Sales (lengkapi yang belum ada)
+      rawSalesData.forEach(s => {
+        const id = (s.Customer_ID || "").toString().trim();
+        const kios = (s.Nama_Kios || "").toString().trim();
+        if (id && kios && !map[id]) map[id] = kios;
+      });
+
+      return map;
+    }
+
+    // =====================================================
+    // RENDER TABEL REKAP TARGET & CAPAIAN PER KIOS
+    // Ambil dari Gabungan_Sales_Target, gabung per Customer_ID,
+    // buang kolom Produk & Last_Update, hitung ulang % & Status.
+    // =====================================================
+    function renderRekapKios(selectedYear, selectedMonth, selectedSales) {
+      const tbody = document.getElementById('tabel-rekap-kios');
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      const kiosMap = buildKiosMap();
+      const keyword = (document.getElementById('search-rekap-kios')?.value || "").toLowerCase().trim();
+
+      // 1. Filter baris sesuai filter Tahun / Bulan / Sales
+      const filtered = rawGabunganData.filter(r => {
+        if (!r.Customer_ID) return false;
+        const matchYear  = selectedYear === "ALL"  || (r.Tahun || "").toString().trim() === selectedYear;
+        const matchMonth = selectedMonth === "ALL" || parseInt(r.Bulan, 10) === parseInt(selectedMonth, 10);
+        const matchSales = selectedSales === "ALL" || (r.Nama_Sales || "").trim() === selectedSales;
+        return matchYear && matchMonth && matchSales;
+      });
+
+      // 2. Gabungkan per Customer_ID (semua produk dijumlahkan)
+      const group = {};
+      filtered.forEach(r => {
+        const id = r.Customer_ID.toString().trim();
+        if (!group[id]) {
+          group[id] = {
+            Customer_ID: id,
+            Nama_Sales: (r.Nama_Sales || "").trim(),
+            Nama_Kios: kiosMap[id] || id,   // fallback ke Customer_ID kalau nama tidak ketemu
+            Target: 0,
+            Terjual: 0
+          };
+        }
+        group[id].Target  += cleanNumber(r.Target_Value);
+        group[id].Terjual += cleanNumber(r.Terjual_Value);
+      });
+
+      // 3. Hitung ulang Sisa, % Capaian, dan Status dari angka gabungan
+      let arr = Object.values(group).map(g => {
+        const sisa = g.Target - g.Terjual;
+        let persen = 0, status = "BELUM TERCAPAI";
+
+        if (g.Target > 0) {
+          persen = Math.round((g.Terjual / g.Target) * 100);
+          status = g.Terjual >= g.Target ? "TERCAPAI" : "BELUM TERCAPAI";
+        } else if (g.Terjual > 0) {
+          persen = 100;
+          status = "DI LUAR FORECAST";
+        }
+
+        return { ...g, Sisa: sisa, Persen: persen, Status: status };
+      });
+
+      // 4. Filter pencarian nama kios / sales
+      if (keyword) {
+        arr = arr.filter(x =>
+          x.Nama_Kios.toLowerCase().includes(keyword) ||
+          x.Nama_Sales.toLowerCase().includes(keyword)
+        );
+      }
+
+      // 5. Urutkan dari target terbesar
+      arr.sort((a, b) => b.Target - a.Target);
+
+      if (arr.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-500">Tidak ada data rekap untuk filter ini.</td></tr>`;
+        const footEmpty = document.getElementById('rekap-kios-foot');
+        if (footEmpty) footEmpty.innerHTML = "";
+        return;
+      }
+
+      // 6. Render baris + hitung total
+      let totTarget = 0, totTerjual = 0, totSisa = 0;
+
+      arr.forEach(x => {
+        totTarget  += x.Target;
+        totTerjual += x.Terjual;
+        totSisa    += (x.Sisa > 0 ? x.Sisa : 0);
+
+        const borderClass = isLightMode
+          ? 'border-slate-200 hover:bg-slate-100'
+          : 'border-slate-700/50 hover:bg-slate-700/30';
+        const txtKiosColor = isLightMode ? 'text-slate-700' : 'text-slate-200';
+
+        let badgeColor;
+        if (x.Status === "TERCAPAI") {
+          badgeColor = "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400";
+        } else if (x.Status === "DI LUAR FORECAST") {
+          badgeColor = "bg-amber-500/20 text-amber-600 dark:text-amber-400";
+        } else {
+          badgeColor = "bg-rose-500/20 text-rose-600 dark:text-rose-400";
+        }
+
+        tbody.innerHTML += `
+          <tr class="border-b ${borderClass}">
+            <td class="p-4 font-semibold text-sky-500 dark:text-sky-400">${x.Nama_Sales}</td>
+            <td class="p-4 ${txtKiosColor}">${x.Nama_Kios}</td>
+            <td class="p-4 text-slate-400">${formatRupiah(x.Target)}</td>
+            <td class="p-4 text-emerald-500 dark:text-emerald-400">${formatRupiah(x.Terjual)}</td>
+            <td class="p-4 text-rose-500 dark:text-rose-400">${x.Sisa > 0 ? formatRupiah(x.Sisa) : 'TERCAPAI'}</td>
+            <td class="p-4 text-center font-bold text-sky-400">${x.Persen}%</td>
+            <td class="p-4 text-center"><span class="px-2.5 py-1 rounded text-xs font-bold ${badgeColor}">${x.Status}</span></td>
+          </tr>
+        `;
+      });
+
+      // 7. Ringkasan total → baris tfoot yang lurus dengan kolom, sticky di bawah
+      const totPersen = totTarget > 0 ? Math.round((totTerjual / totTarget) * 100) : 0;
+      const foot = document.getElementById('rekap-kios-foot');
+      if (foot) {
+        const footBg = isLightMode ? 'bg-white' : 'bg-slate-800';
+        const cellBase = `p-4 border-t-2 border-sky-500 sticky bottom-0 z-10 ${footBg}`;
+        foot.innerHTML = `
+          <tr class="font-bold">
+            <td colspan="2" class="${cellBase} text-amber-400">JUMLAH (${arr.length} kios)</td>
+            <td class="${cellBase} text-amber-400">${formatRupiah(totTarget)}</td>
+            <td class="${cellBase} text-emerald-400">${formatRupiah(totTerjual)}</td>
+            <td class="${cellBase} text-rose-400">${formatRupiah(totSisa)}</td>
+            <td class="${cellBase} text-center text-sky-400">${totPersen}%</td>
+            <td class="${cellBase}"></td>
+          </tr>
+        `;
+      }
+    }
+
+    // =====================================================
+    // RENDER SPAIN PROGRAM (satuan utama: LITER)
+    // Sheet Spain_Program sudah difilter 4 customer di sisi
+    // Apps Script; di sini digabung per Customer_ID.
+    // Kolom liter: Target_Liter, Terjual_Liter, Sisa_Liter.
+    // =====================================================
+    function fmtLiter(n) {
+      return Number(n || 0).toLocaleString('id-ID') + " L";
+    }
+
+    function renderSpainProgram(selectedYear, selectedMonth, selectedSales) {
+      const tbody = document.getElementById('tabel-spain');
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      const kiosMap = buildKiosMap();
+
+      // 1. Filter sesuai Tahun / Bulan / Sales
+      const filtered = rawSpainData.filter(r => {
+        if (!r.Customer_ID) return false;
+        const matchYear  = selectedYear === "ALL"  || (r.Tahun || "").toString().trim() === selectedYear;
+        const matchMonth = selectedMonth === "ALL" || parseInt(r.Bulan, 10) === parseInt(selectedMonth, 10);
+        const matchSales = selectedSales === "ALL" || (r.Nama_Sales || "").trim() === selectedSales;
+        return matchYear && matchMonth && matchSales;
+      });
+
+      // 2. Gabung per Customer_ID (liter sebagai metrik utama)
+      const group = {};
+      filtered.forEach(r => {
+        const id = r.Customer_ID.toString().trim();
+        if (!group[id]) {
+          group[id] = {
+            Customer_ID: id,
+            Nama_Sales: (r.Nama_Sales || "").trim(),
+            Nama_Kios: kiosMap[id] || id,
+            TargetL: 0,
+            TerjualL: 0
+          };
+        }
+        group[id].TargetL  += cleanNumber(r.Target_Liter);
+        group[id].TerjualL += cleanNumber(r.Terjual_Liter);
+      });
+
+      // 3. Hitung sisa, %, status
+      let arr = Object.values(group).map(g => {
+        const sisa = g.TargetL - g.TerjualL;
+        let persen = 0, status = "BELUM TERCAPAI";
+        if (g.TargetL > 0) {
+          persen = Math.round((g.TerjualL / g.TargetL) * 100);
+          status = g.TerjualL >= g.TargetL ? "TERCAPAI" : "BELUM TERCAPAI";
+        } else if (g.TerjualL > 0) {
+          persen = 100;
+          status = "DI LUAR FORECAST";
+        }
+        return { ...g, SisaL: sisa, Persen: persen, Status: status };
+      });
+
+      arr.sort((a, b) => b.TargetL - a.TargetL);
+
+      // 4. Kartu ringkasan
+      let totTarget = 0, totTerjual = 0, totSisa = 0;
+      arr.forEach(x => {
+        totTarget  += x.TargetL;
+        totTerjual += x.TerjualL;
+        totSisa    += (x.SisaL > 0 ? x.SisaL : 0);
+      });
+      const totPersen = totTarget > 0 ? Math.round((totTerjual / totTarget) * 100) : 0;
+
+      document.getElementById('spain-target-liter').innerText  = fmtLiter(totTarget);
+      document.getElementById('spain-terjual-liter').innerText = fmtLiter(totTerjual);
+      document.getElementById('spain-sisa-liter').innerText    = fmtLiter(totSisa);
+      document.getElementById('spain-total-persen').innerText  = totPersen + "%";
+      document.getElementById('spain-progress-bar').style.width = Math.min(totPersen, 100) + "%";
+
+      // 5. Tabel detail
+      if (arr.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-500">Tidak ada data Spain Program untuk filter ini.</td></tr>`;
+        return;
+      }
+
+      arr.forEach(x => {
+        const borderClass = isLightMode
+          ? 'border-slate-200 hover:bg-slate-100'
+          : 'border-slate-700/50 hover:bg-slate-700/30';
+        const txtKiosColor = isLightMode ? 'text-slate-700' : 'text-slate-200';
+
+        let badgeColor;
+        if (x.Status === "TERCAPAI") {
+          badgeColor = "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400";
+        } else if (x.Status === "DI LUAR FORECAST") {
+          badgeColor = "bg-amber-500/20 text-amber-600 dark:text-amber-400";
+        } else {
+          badgeColor = "bg-rose-500/20 text-rose-600 dark:text-rose-400";
+        }
+
+        tbody.innerHTML += `
+          <tr class="border-b ${borderClass}">
+            <td class="p-4 font-semibold text-sky-500 dark:text-sky-400">${x.Nama_Sales}</td>
+            <td class="p-4 ${txtKiosColor}">${x.Nama_Kios}</td>
+            <td class="p-4 text-right text-slate-400">${fmtLiter(x.TargetL)}</td>
+            <td class="p-4 text-right text-emerald-500 dark:text-emerald-400">${fmtLiter(x.TerjualL)}</td>
+            <td class="p-4 text-right text-rose-500 dark:text-rose-400">${x.SisaL > 0 ? fmtLiter(x.SisaL) : 'TERCAPAI'}</td>
+            <td class="p-4 text-center font-bold text-sky-400">${x.Persen}%</td>
+            <td class="p-4 text-center"><span class="px-2.5 py-1 rounded text-xs font-bold ${badgeColor}">${x.Status}</span></td>
+          </tr>
+        `;
+      });
+    }
 
     function processData(selectedYear, selectedMonth, selectedSales) {
       // 1. FILTER DATA UTAMA UNTUK CARD DAN TABEL
@@ -716,6 +1100,8 @@ let arrPiutangGlobal =
 
       renderTargetTableOnly();
       renderPiutangTable();
+      renderRekapKios(selectedYear, selectedMonth, selectedSales);
+      renderSpainProgram(selectedYear, selectedMonth, selectedSales);
     }
 
     function renderTargetTableOnly() {
@@ -856,6 +1242,32 @@ let arrPiutangGlobal =
       }
     }
 
+    function setActiveTab(which) {
+      currentView = which;
+      const btnMain  = document.getElementById('tab-btn-main');
+      const btnSpain = document.getElementById('tab-btn-spain');
+      const viewMain  = document.getElementById('view-main');
+      const viewSpain = document.getElementById('view-spain');
+
+      const base = "tab-btn px-5 py-2.5 rounded-xl text-sm font-semibold cursor-pointer transition-all ";
+      const activeCls = "bg-sky-500 text-white";
+      const inactiveCls = isLightMode
+        ? "bg-white text-slate-600 hover:bg-slate-100 border border-slate-300"
+        : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700";
+
+      if (which === 'spain') {
+        viewMain.classList.add('hidden');
+        viewSpain.classList.remove('hidden');
+        btnSpain.className = base + activeCls;
+        btnMain.className  = base + inactiveCls;
+      } else {
+        viewSpain.classList.add('hidden');
+        viewMain.classList.remove('hidden');
+        btnMain.className  = base + activeCls;
+        btnSpain.className = base + inactiveCls;
+      }
+    }
+
     function setupThemeToggle() {
       const btn = document.getElementById('btn-toggle-mode');
       const body = document.getElementById('body-root');
@@ -946,6 +1358,7 @@ let arrPiutangGlobal =
 
         processData(filterTahun.value, filterBulan.value, filterSales.value);
         renderStockSection();
+        setActiveTab(currentView);
       });
     }
 
@@ -956,13 +1369,19 @@ let arrPiutangGlobal =
           resPayment,
           resFormPayment,
           resStok,
-          resTarget
+          resTarget,
+          resGabungan,
+          resCustomer,
+          resSpain
         ] = await Promise.all([
           fetch(URL_API_SALES).then(r => r.json()),
           fetch(URL_API_PAYMENT).then(r => r.json()),
           fetch(URL_API_FORM_PAYMENT).then(r => r.json()),
           fetch(URL_API_STOK).then(r => r.json()),
-          fetch(URL_API_TARGET).then(r => r.json())
+          fetch(URL_API_TARGET).then(r => r.json()),
+          fetch(URL_API_GABUNGAN).then(r => r.json()),
+          fetch(URL_API_CUSTOMER).then(r => r.json()).catch(() => ({ values: [] })),
+          fetch(URL_API_SPAIN).then(r => r.json()).catch(() => ({ values: [] }))
         ]);
 
         rawSalesData = convertRowsToJSON(resSales.values);
@@ -970,6 +1389,9 @@ let arrPiutangGlobal =
         rawFormPayment = convertRowsToJSON(resFormPayment.values);
         rawStockData = convertRowsToJSON(resStok.values);
         rawTargetData = convertRowsToJSON(resTarget.values);
+        rawGabunganData = convertRowsToJSON(resGabungan.values);
+        rawCustomerData = convertRowsToJSON(resCustomer.values);
+        rawSpainData = convertRowsToJSON(resSpain.values);
 
         setupThemeToggle();
         renderStockSection();
@@ -981,6 +1403,18 @@ let arrPiutangGlobal =
         filterTahun.addEventListener('change', () => { currentPage = 1; processData(filterTahun.value, filterBulan.value, filterSales.value); });
         filterBulan.addEventListener('change', () => { currentPage = 1; processData(filterTahun.value, filterBulan.value, filterSales.value); });
         filterSales.addEventListener('change', () => { currentPage = 1; processData(filterTahun.value, filterBulan.value, filterSales.value); });
+
+        // Kotak pencarian tabel Rekap per Kios (cukup render ulang tabel itu saja)
+        const searchRekap = document.getElementById('search-rekap-kios');
+        if (searchRekap) {
+          searchRekap.addEventListener('input', () => {
+            renderRekapKios(filterTahun.value, filterBulan.value, filterSales.value);
+          });
+        }
+
+        // Navigasi Tab: Dashboard Utama <-> Spain Program
+        document.getElementById('tab-btn-main').addEventListener('click', () => setActiveTab('main'));
+        document.getElementById('tab-btn-spain').addEventListener('click', () => setActiveTab('spain'));
 
         const pageSizeSelect = document.getElementById('page-size');
         pageSizeSelect.addEventListener('change', (e) => { pageSize = parseInt(e.target.value, 10); currentPage = 1; renderPiutangTable(); });
