@@ -160,7 +160,7 @@
     <!-- ============================================= -->
     <div class="card-element bg-slate-800 rounded-xl border border-slate-700 overflow-hidden transition-all mb-8">
       <div class="p-6 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 inner-border-b">
-        <h3 class="text-lg font-semibold text-slate-200 heading-text">🎯 Target Forcast Sales</h3>
+        <h3 class="text-lg font-semibold text-slate-200 heading-text">🎯 Rekap Target &amp; Capaian per Kios</h3>
         <div class="flex items-center gap-2 text-sm text-slate-400 sub-text w-full sm:w-auto">
           <input id="search-rekap-kios" type="text" placeholder="🔍 Cari nama kios / sales..."
             class="bg-slate-700 text-slate-100 rounded-lg px-3 py-2 border border-slate-600 outline-none w-full sm:w-64 focus:ring-sky-500 focus:border-sky-500" />
@@ -276,7 +276,7 @@
       <!-- Tabel detail per kios -->
       <div class="card-element bg-slate-800 rounded-xl border border-slate-700 overflow-hidden transition-all">
         <div class="p-6 border-b border-slate-700 inner-border-b">
-          <h3 class="text-lg font-semibold text-slate-200 heading-text">🎯 Target Forcast Sales (Liter)</h3>
+          <h3 class="text-lg font-semibold text-slate-200 heading-text">🎯 Detail Capaian per Kios (Liter)</h3>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm text-slate-300 table-content">
@@ -293,6 +293,31 @@
             </thead>
             <tbody id="tabel-spain">
               <tr><td colspan="7" class="p-4 text-center text-slate-500">Memuat data Spain Program...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tabel rincian per produk -->
+      <div class="card-element bg-slate-800 rounded-xl border border-slate-700 overflow-hidden transition-all mt-8">
+        <div class="p-6 border-b border-slate-700 inner-border-b">
+          <h3 class="text-lg font-semibold text-slate-200 heading-text">📋 Detail per Produk (Liter)</h3>
+        </div>
+        <div class="overflow-x-auto max-h-[520px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700">
+          <table class="w-full text-left text-sm text-slate-300 table-content">
+            <thead class="bg-slate-700 text-xs uppercase text-slate-400 sticky top-0 z-10 table-head">
+              <tr>
+                <th class="p-4">Nama Kios</th>
+                <th class="p-4">Nama Produk</th>
+                <th class="p-4 text-right">Target (Liter)</th>
+                <th class="p-4 text-right">Tercapai (Liter)</th>
+                <th class="p-4 text-right">Sisa (Liter)</th>
+                <th class="p-4 text-center">Capaian</th>
+                <th class="p-4 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="tabel-spain-produk">
+              <tr><td colspan="7" class="p-4 text-center text-slate-500">Memuat data...</td></tr>
             </tbody>
           </table>
         </div>
@@ -649,6 +674,85 @@
           <tr class="border-b ${borderClass}">
             <td class="p-4 font-semibold text-sky-500 dark:text-sky-400">${x.Nama_Sales}</td>
             <td class="p-4 ${txtKiosColor}">${x.Nama_Kios}</td>
+            <td class="p-4 text-right text-slate-400">${fmtLiter(x.TargetL)}</td>
+            <td class="p-4 text-right text-emerald-500 dark:text-emerald-400">${fmtLiter(x.TerjualL)}</td>
+            <td class="p-4 text-right text-rose-500 dark:text-rose-400">${x.SisaL > 0 ? fmtLiter(x.SisaL) : 'TERCAPAI'}</td>
+            <td class="p-4 text-center font-bold text-sky-400">${x.Persen}%</td>
+            <td class="p-4 text-center"><span class="px-2.5 py-1 rounded text-xs font-bold ${badgeColor}">${x.Status}</span></td>
+          </tr>
+        `;
+      });
+    }
+
+    // =====================================================
+    // RENDER DETAIL PER PRODUK (Liter) — tanpa nama sales
+    // Tiap baris = satu produk (tidak digabung per customer).
+    // =====================================================
+    function renderSpainDetailProduk(selectedYear, selectedMonth, selectedSales) {
+      const tbody = document.getElementById('tabel-spain-produk');
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      const kiosMap = buildKiosMap();
+
+      // Filter sesuai Tahun / Bulan / Sales
+      let rows = rawSpainData.filter(r => {
+        if (!r.Customer_ID) return false;
+        const matchYear  = selectedYear === "ALL"  || (r.Tahun || "").toString().trim() === selectedYear;
+        const matchMonth = selectedMonth === "ALL" || parseInt(r.Bulan, 10) === parseInt(selectedMonth, 10);
+        const matchSales = selectedSales === "ALL" || (r.Nama_Sales || "").trim() === selectedSales;
+        return matchYear && matchMonth && matchSales;
+      }).map(r => {
+        const id = r.Customer_ID.toString().trim();
+        const targetL  = cleanNumber(r.Target_Liter);
+        const terjualL = cleanNumber(r.Terjual_Liter);
+        const sisaL    = targetL - terjualL;
+        let persen = 0, status = "BELUM TERCAPAI";
+        if (targetL > 0) {
+          persen = Math.round((terjualL / targetL) * 100);
+          status = terjualL >= targetL ? "TERCAPAI" : "BELUM TERCAPAI";
+        } else if (terjualL > 0) {
+          persen = 100;
+          status = "DI LUAR FORECAST";
+        }
+        return {
+          Nama_Kios: kiosMap[id] || id,
+          Produk: (r.Produk || "-").toString().trim(),
+          TargetL: targetL, TerjualL: terjualL, SisaL: sisaL,
+          Persen: persen, Status: status
+        };
+      });
+
+      // Urutkan: per kios, lalu target terbesar
+      rows.sort((a, b) => {
+        if (a.Nama_Kios === b.Nama_Kios) return b.TargetL - a.TargetL;
+        return a.Nama_Kios.localeCompare(b.Nama_Kios);
+      });
+
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-500">Tidak ada data untuk filter ini.</td></tr>`;
+        return;
+      }
+
+      rows.forEach(x => {
+        const borderClass = isLightMode
+          ? 'border-slate-200 hover:bg-slate-100'
+          : 'border-slate-700/50 hover:bg-slate-700/30';
+        const txtKiosColor = isLightMode ? 'text-slate-700' : 'text-slate-200';
+
+        let badgeColor;
+        if (x.Status === "TERCAPAI") {
+          badgeColor = "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400";
+        } else if (x.Status === "DI LUAR FORECAST") {
+          badgeColor = "bg-amber-500/20 text-amber-600 dark:text-amber-400";
+        } else {
+          badgeColor = "bg-rose-500/20 text-rose-600 dark:text-rose-400";
+        }
+
+        tbody.innerHTML += `
+          <tr class="border-b ${borderClass}">
+            <td class="p-4 ${txtKiosColor} font-medium">${x.Nama_Kios}</td>
+            <td class="p-4 text-slate-400">${x.Produk}</td>
             <td class="p-4 text-right text-slate-400">${fmtLiter(x.TargetL)}</td>
             <td class="p-4 text-right text-emerald-500 dark:text-emerald-400">${fmtLiter(x.TerjualL)}</td>
             <td class="p-4 text-right text-rose-500 dark:text-rose-400">${x.SisaL > 0 ? fmtLiter(x.SisaL) : 'TERCAPAI'}</td>
@@ -1102,6 +1206,7 @@ let arrPiutangGlobal =
       renderPiutangTable();
       renderRekapKios(selectedYear, selectedMonth, selectedSales);
       renderSpainProgram(selectedYear, selectedMonth, selectedSales);
+      renderSpainDetailProduk(selectedYear, selectedMonth, selectedSales);
     }
 
     function renderTargetTableOnly() {
