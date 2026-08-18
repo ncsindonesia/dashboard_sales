@@ -118,13 +118,14 @@
                 <th class="p-3.5">Nama Sales</th>
                 <th class="p-3.5">Target</th>
                 <th class="p-3.5">Pencapaian</th>
+                <th class="p-3.5">Collections</th>
                 <th class="p-3.5">Sisa Target</th>
                 <th class="p-3.5 text-center">Capaian</th>
               </tr>
             </thead>
             <tbody id="tabel-target-sales">
               <tr>
-                <td colspan="5" class="p-4 text-center text-slate-500">Memuat data target...</td>
+                <td colspan="6" class="p-4 text-center text-slate-500">Memuat data target...</td>
               </tr>
             </tbody>
           </table>
@@ -1007,6 +1008,14 @@ let arrPiutangGlobal =
 
       let calculatedTargetArray = [];
 
+      // Collections per sales = total pembayaran masuk (Sales_Payment + Form Payment)
+      let collectionsPerSales = {};
+      arrPiutangGlobal.forEach(p => {
+        const n = p.Nama_Sales;
+        if (!collectionsPerSales[n]) collectionsPerSales[n] = 0;
+        collectionsPerSales[n] += p.Total_Bayar;
+      });
+
       // Step B: Olah angka target dan pencapaian untuk nama-nama sales yang valid
       listSalesOrder.forEach(nama => {
         let totalNilaiTarget = 0;
@@ -1047,6 +1056,7 @@ let arrPiutangGlobal =
           Nama_Sales: nama,
           Target: totalNilaiTarget,
           Pencapaian: nilaiPencapaianReal,
+          Collections: collectionsPerSales[nama] || 0,
           Sisa: sisaTarget,
           Persen: persentaseCapaian
         });
@@ -1216,7 +1226,7 @@ let arrPiutangGlobal =
   if (currentProcessedTarget.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="p-4 text-center text-slate-500">
+        <td colspan="6" class="p-4 text-center text-slate-500">
           Tidak ada data target sales.
         </td>
       </tr>
@@ -1226,12 +1236,14 @@ let arrPiutangGlobal =
 
   let totalTarget = 0;
   let totalPencapaian = 0;
+  let totalCollections = 0;
   let totalSisa = 0;
 
   currentProcessedTarget.forEach(t => {
 
     totalTarget += t.Target;
     totalPencapaian += t.Pencapaian;
+    totalCollections += (t.Collections || 0);
     totalSisa += t.Sisa;
 
     const borderClass = isLightMode
@@ -1248,6 +1260,9 @@ let arrPiutangGlobal =
         </td>
         <td class="p-3.5 text-emerald-400">
           ${formatRupiah(t.Pencapaian)}
+        </td>
+        <td class="p-3.5 text-teal-400">
+          ${formatRupiah(t.Collections || 0)}
         </td>
         <td class="p-3.5 text-rose-400">
           ${t.Sisa > 0 ? formatRupiah(t.Sisa) : 'TERCAPAI'}
@@ -1278,6 +1293,10 @@ let arrPiutangGlobal =
 
       <td class="p-3.5 text-emerald-400">
         ${formatRupiah(totalPencapaian)}
+      </td>
+
+      <td class="p-3.5 text-teal-400">
+        ${formatRupiah(totalCollections)}
       </td>
 
       <td class="p-3.5 text-rose-400">
