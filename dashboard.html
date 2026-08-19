@@ -109,7 +109,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
       <div class="card-element bg-slate-800 rounded-xl border border-slate-700 lg:col-span-2 flex flex-col transition-all overflow-hidden">
         <div class="p-4 border-b border-slate-700 flex justify-between items-center inner-border-b">
-          <h3 class="text-base font-semibold text-slate-200 heading-text">📊 Tabel Detail Target & Capaian Sales</h3>
+          <h3 class="text-base font-semibold text-slate-200 heading-text">📊 Target & Capaian Total Penjualan Sales</h3>
         </div>
         <div class="overflow-x-auto flex-1">
           <table class="w-full text-left text-sm text-slate-300 table-content">
@@ -118,14 +118,13 @@
                 <th class="p-3.5">Nama Sales</th>
                 <th class="p-3.5">Target</th>
                 <th class="p-3.5">Pencapaian</th>
-                <th class="p-3.5">Collections</th>
                 <th class="p-3.5">Sisa Target</th>
                 <th class="p-3.5 text-center">Capaian</th>
               </tr>
             </thead>
             <tbody id="tabel-target-sales">
               <tr>
-                <td colspan="6" class="p-4 text-center text-slate-500">Memuat data target...</td>
+                <td colspan="5" class="p-4 text-center text-slate-500">Memuat data target...</td>
               </tr>
             </tbody>
           </table>
@@ -155,13 +154,41 @@
     </div>
 
     <!-- ============================================= -->
+    <!-- TABEL BARU: TARGET DAN COLLECTIONS (per sales) -->
+    <!-- Collections dari data pembayaran / Form Payment -->
+    <!-- ============================================= -->
+    <div class="card-element bg-slate-800 rounded-xl border border-slate-700 overflow-hidden transition-all mb-8">
+      <div class="p-4 border-b border-slate-700 flex justify-between items-center inner-border-b">
+        <h3 class="text-base font-semibold text-slate-200 heading-text">💰 Target & Collections Payment Sales</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-300 table-content">
+          <thead class="bg-slate-700 text-xs uppercase text-slate-400 table-head">
+            <tr>
+              <th class="p-3.5">Nama Sales</th>
+              <th class="p-3.5">Target</th>
+              <th class="p-3.5">Collections</th>
+              <th class="p-3.5">Sisa Target</th>
+              <th class="p-3.5 text-center">Capaian</th>
+            </tr>
+          </thead>
+          <tbody id="tabel-collections">
+            <tr>
+              <td colspan="5" class="p-4 text-center text-slate-500">Memuat data collections...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================= -->
     <!-- TABEL BARU: REKAP TARGET & CAPAIAN PER KIOS   -->
     <!-- (rekapan dari sheet Gabungan_Sales_Target,     -->
     <!--  digabung per Customer_ID, tanpa nama produk)  -->
     <!-- ============================================= -->
     <div class="card-element bg-slate-800 rounded-xl border border-slate-700 overflow-hidden transition-all mb-8">
       <div class="p-6 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 inner-border-b">
-        <h3 class="text-lg font-semibold text-slate-200 heading-text">🎯 Rekap Target &amp; Capaian per Kios</h3>
+        <h3 class="text-lg font-semibold text-slate-200 heading-text">🎯 Target & Capaian Per Kios (FORCAST)</h3>
         <div class="flex items-center gap-2 text-sm text-slate-400 sub-text w-full sm:w-auto">
           <input id="search-rekap-kios" type="text" placeholder="🔍 Cari nama kios / sales..."
             class="bg-slate-700 text-slate-100 rounded-lg px-3 py-2 border border-slate-600 outline-none w-full sm:w-64 focus:ring-sky-500 focus:border-sky-500" />
@@ -340,6 +367,7 @@
     const URL_API_GABUNGAN = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Gabungan_Sales_Target?key=${API_KEY}`;
     const URL_API_CUSTOMER = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Data_Customer?key=${API_KEY}`;
     const URL_API_SPAIN = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Spain_Program?key=${API_KEY}`;
+    const URL_API_TARGET_PAYMENT = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Target_Payment?key=${API_KEY}`;
 
     let rawFormPayment = [];
     let rawSalesData = [];
@@ -349,9 +377,11 @@
     let rawGabunganData = [];
     let rawCustomerData = [];
     let rawSpainData = [];
+    let rawTargetPaymentData = [];
     
     let currentProcessedPiutang = [];
     let currentProcessedTarget = [];
+    let currentProcessedCollection = [];
     
     let chartInstance1 = null;
     let chartInstance2 = null;
@@ -1008,14 +1038,6 @@ let arrPiutangGlobal =
 
       let calculatedTargetArray = [];
 
-      // Collections per sales = total pembayaran masuk (Sales_Payment + Form Payment)
-      let collectionsPerSales = {};
-      arrPiutangGlobal.forEach(p => {
-        const n = p.Nama_Sales;
-        if (!collectionsPerSales[n]) collectionsPerSales[n] = 0;
-        collectionsPerSales[n] += p.Total_Bayar;
-      });
-
       // Step B: Olah angka target dan pencapaian untuk nama-nama sales yang valid
       listSalesOrder.forEach(nama => {
         let totalNilaiTarget = 0;
@@ -1056,7 +1078,6 @@ let arrPiutangGlobal =
           Nama_Sales: nama,
           Target: totalNilaiTarget,
           Pencapaian: nilaiPencapaianReal,
-          Collections: collectionsPerSales[nama] || 0,
           Sisa: sisaTarget,
           Persen: persentaseCapaian
         });
@@ -1069,6 +1090,44 @@ let arrPiutangGlobal =
         currentProcessedPiutang = arrPiutangGlobal;
         currentProcessedTarget = calculatedTargetArray;
       }
+
+      // =========================================================================
+      // HITUNG TABEL "TARGET DAN COLLECTIONS" PER SALES
+      // Collections = total pembayaran masuk (Sales_Payment + Form Payment)
+      // =========================================================================
+      // TABEL "TARGET DAN COLLECTIONS" — sumber: sheet Target_Payment
+      // Kolom sheet: Nama_Sales, Bulan, Tahun, Target_Bulanan,
+      //   Pencapaian_Real (= collections/pembayaran), Sisa_Target,
+      //   Persentase_Capaian, Status.
+      // Digabung per Nama_Sales sesuai filter Tahun/Bulan/Sales.
+      // =========================================================================
+      let tpFiltered = rawTargetPaymentData.filter(t => {
+        if (!t.Nama_Sales || !t.Nama_Sales.trim()) return false;
+        const matchYear  = selectedYear === "ALL"  || (t.Tahun || "").toString().trim() === selectedYear;
+        const matchMonth = selectedMonth === "ALL" || parseInt(t.Bulan, 10) === parseInt(selectedMonth, 10);
+        const matchSales = selectedSales === "ALL" || t.Nama_Sales.trim() === selectedSales;
+        return matchYear && matchMonth && matchSales;
+      });
+
+      let tpGroup = {};
+      tpFiltered.forEach(t => {
+        const nama = t.Nama_Sales.trim();
+        if (!tpGroup[nama]) tpGroup[nama] = { Nama_Sales: nama, Target: 0, Collections: 0 };
+        tpGroup[nama].Target      += cleanNumber(t.Target_Bulanan);
+        tpGroup[nama].Collections += cleanNumber(t.Pencapaian_Real);
+      });
+
+      let calculatedCollectionArray = Object.values(tpGroup).map(g => {
+        let sisa = g.Target - g.Collections;
+        if (sisa < 0) sisa = 0;
+        let persen = 0;
+        if (g.Target > 0) persen = Math.round((g.Collections / g.Target) * 100);
+        else if (g.Target === 0 && g.Collections > 0) persen = 100;
+        return { Nama_Sales: g.Nama_Sales, Target: g.Target, Collections: g.Collections, Sisa: sisa, Persen: persen };
+      });
+
+      calculatedCollectionArray.sort((a, b) => b.Target - a.Target);
+      currentProcessedCollection = calculatedCollectionArray;
 
       // =========================================================================
       // HITUNG TREN PERSENTASE PER BULAN (12 BULAN) UNTUK GRAFIK BATANG
@@ -1213,6 +1272,7 @@ let arrPiutangGlobal =
       });
 
       renderTargetTableOnly();
+      renderCollectionTable();
       renderPiutangTable();
       renderRekapKios(selectedYear, selectedMonth, selectedSales);
       renderSpainProgram(selectedYear, selectedMonth, selectedSales);
@@ -1226,7 +1286,7 @@ let arrPiutangGlobal =
   if (currentProcessedTarget.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" class="p-4 text-center text-slate-500">
+        <td colspan="5" class="p-4 text-center text-slate-500">
           Tidak ada data target sales.
         </td>
       </tr>
@@ -1236,14 +1296,12 @@ let arrPiutangGlobal =
 
   let totalTarget = 0;
   let totalPencapaian = 0;
-  let totalCollections = 0;
   let totalSisa = 0;
 
   currentProcessedTarget.forEach(t => {
 
     totalTarget += t.Target;
     totalPencapaian += t.Pencapaian;
-    totalCollections += (t.Collections || 0);
     totalSisa += t.Sisa;
 
     const borderClass = isLightMode
@@ -1260,9 +1318,6 @@ let arrPiutangGlobal =
         </td>
         <td class="p-3.5 text-emerald-400">
           ${formatRupiah(t.Pencapaian)}
-        </td>
-        <td class="p-3.5 text-teal-400">
-          ${formatRupiah(t.Collections || 0)}
         </td>
         <td class="p-3.5 text-rose-400">
           ${t.Sisa > 0 ? formatRupiah(t.Sisa) : 'TERCAPAI'}
@@ -1295,10 +1350,6 @@ let arrPiutangGlobal =
         ${formatRupiah(totalPencapaian)}
       </td>
 
-      <td class="p-3.5 text-teal-400">
-        ${formatRupiah(totalCollections)}
-      </td>
-
       <td class="p-3.5 text-rose-400">
         ${formatRupiah(totalSisa)}
       </td>
@@ -1306,6 +1357,72 @@ let arrPiutangGlobal =
       <td class="p-3.5 text-center text-sky-400">
         ${totalPersen}%
       </td>
+    </tr>
+  `;
+}
+
+    function renderCollectionTable() {
+  const tbody = document.getElementById('tabel-collections');
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  if (currentProcessedCollection.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="p-4 text-center text-slate-500">
+          Tidak ada data collections.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  let totalTarget = 0;
+  let totalCollections = 0;
+  let totalSisa = 0;
+
+  currentProcessedCollection.forEach(t => {
+    totalTarget += t.Target;
+    totalCollections += t.Collections;
+    totalSisa += t.Sisa;
+
+    const borderClass = isLightMode
+      ? 'border-slate-200 hover:bg-slate-100'
+      : 'border-slate-700/50 hover:bg-slate-700/30';
+
+    tbody.innerHTML += `
+      <tr class="border-b ${borderClass}">
+        <td class="p-3.5 font-semibold text-sky-500 dark:text-sky-400">
+          ${t.Nama_Sales}
+        </td>
+        <td class="p-3.5 text-slate-400">
+          ${formatRupiah(t.Target)}
+        </td>
+        <td class="p-3.5 text-emerald-400">
+          ${formatRupiah(t.Collections)}
+        </td>
+        <td class="p-3.5 text-rose-400">
+          ${t.Sisa > 0 ? formatRupiah(t.Sisa) : 'TERCAPAI'}
+        </td>
+        <td class="p-3.5 text-center font-bold text-sky-400">
+          ${t.Persen}%
+        </td>
+      </tr>
+    `;
+  });
+
+  const totalPersen =
+    totalTarget > 0
+      ? Math.round((totalCollections / totalTarget) * 100)
+      : 0;
+
+  tbody.innerHTML += `
+    <tr class="border-t-2 border-sky-500 font-bold bg-slate-800/40">
+      <td class="p-3.5 text-amber-400">JUMLAH</td>
+      <td class="p-3.5 text-amber-400">${formatRupiah(totalTarget)}</td>
+      <td class="p-3.5 text-emerald-400">${formatRupiah(totalCollections)}</td>
+      <td class="p-3.5 text-rose-400">${formatRupiah(totalSisa)}</td>
+      <td class="p-3.5 text-center text-sky-400">${totalPersen}%</td>
     </tr>
   `;
 }
@@ -1496,7 +1613,8 @@ let arrPiutangGlobal =
           resTarget,
           resGabungan,
           resCustomer,
-          resSpain
+          resSpain,
+          resTargetPayment
         ] = await Promise.all([
           fetch(URL_API_SALES).then(r => r.json()),
           fetch(URL_API_PAYMENT).then(r => r.json()),
@@ -1505,7 +1623,8 @@ let arrPiutangGlobal =
           fetch(URL_API_TARGET).then(r => r.json()),
           fetch(URL_API_GABUNGAN).then(r => r.json()),
           fetch(URL_API_CUSTOMER).then(r => r.json()).catch(() => ({ values: [] })),
-          fetch(URL_API_SPAIN).then(r => r.json()).catch(() => ({ values: [] }))
+          fetch(URL_API_SPAIN).then(r => r.json()).catch(() => ({ values: [] })),
+          fetch(URL_API_TARGET_PAYMENT).then(r => r.json()).catch(() => ({ values: [] }))
         ]);
 
         rawSalesData = convertRowsToJSON(resSales.values);
@@ -1516,6 +1635,7 @@ let arrPiutangGlobal =
         rawGabunganData = convertRowsToJSON(resGabungan.values);
         rawCustomerData = convertRowsToJSON(resCustomer.values);
         rawSpainData = convertRowsToJSON(resSpain.values);
+        rawTargetPaymentData = convertRowsToJSON(resTargetPayment.values);
 
         setupThemeToggle();
         renderStockSection();
