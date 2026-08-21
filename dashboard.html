@@ -106,8 +106,8 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      <div class="card-element bg-slate-800 rounded-xl border border-slate-700 lg:col-span-2 flex flex-col transition-all overflow-hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
+      <div class="card-element bg-slate-800 rounded-xl border border-slate-700 lg:col-span-3 flex flex-col transition-all overflow-hidden">
         <div class="p-4 border-b border-slate-700 flex justify-between items-center inner-border-b">
           <h3 class="text-base font-semibold text-slate-200 heading-text">📊 Target & Capaian Total Penjualan Sales</h3>
         </div>
@@ -131,7 +131,7 @@
         </div>
       </div>
 
-      <div class="card-element bg-slate-800 rounded-xl border border-slate-700 flex flex-col transition-all h-[370px] overflow-hidden">
+      <div class="card-element bg-slate-800 rounded-xl border border-slate-700 flex flex-col transition-all h-[370px] overflow-hidden lg:col-span-2">
         <div class="p-4 border-b border-slate-700 inner-border-b">
           <h3 class="text-base font-semibold text-slate-200 heading-text">📋 Daftar Real-Time Stok Gudang</h3>
         </div>
@@ -157,27 +157,34 @@
     <!-- TABEL BARU: TARGET DAN COLLECTIONS (per sales) -->
     <!-- Collections dari data pembayaran / Form Payment -->
     <!-- ============================================= -->
-    <div class="card-element bg-slate-800 rounded-xl border border-slate-700 overflow-hidden transition-all mb-8">
-      <div class="p-4 border-b border-slate-700 flex justify-between items-center inner-border-b">
-        <h3 class="text-base font-semibold text-slate-200 heading-text">💰 Target & Collections Payment Sales</h3>
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
+      <div class="card-element bg-slate-800 rounded-xl border border-slate-700 overflow-hidden transition-all lg:col-span-3">
+        <div class="p-4 border-b border-slate-700 flex justify-between items-center inner-border-b">
+          <h3 class="text-base font-semibold text-slate-200 heading-text">💰 Target & Collections Payment Sales</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-300 table-content">
+            <thead class="bg-slate-700 text-xs uppercase text-slate-400 table-head">
+              <tr>
+                <th class="p-3.5">Nama Sales</th>
+                <th class="p-3.5">Target</th>
+                <th class="p-3.5">Collections</th>
+                <th class="p-3.5">Sisa Target</th>
+                <th class="p-3.5 text-center">Capaian</th>
+              </tr>
+            </thead>
+            <tbody id="tabel-collections">
+              <tr>
+                <td colspan="5" class="p-4 text-center text-slate-500">Memuat data collections...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-slate-300 table-content">
-          <thead class="bg-slate-700 text-xs uppercase text-slate-400 table-head">
-            <tr>
-              <th class="p-3.5">Nama Sales</th>
-              <th class="p-3.5">Target</th>
-              <th class="p-3.5">Collections</th>
-              <th class="p-3.5">Sisa Target</th>
-              <th class="p-3.5 text-center">Capaian</th>
-            </tr>
-          </thead>
-          <tbody id="tabel-collections">
-            <tr>
-              <td colspan="5" class="p-4 text-center text-slate-500">Memuat data collections...</td>
-            </tr>
-          </tbody>
-        </table>
+
+      <div class="card-element bg-slate-800 p-6 rounded-xl border border-slate-700 h-[420px] lg:h-auto transition-all lg:col-span-2">
+        <h3 class="text-base font-semibold mb-2 text-slate-200 heading-text">📈 % Capaian Collections Per Bulan</h3>
+        <canvas id="chartCollections" class="max-h-[340px]"></canvas>
       </div>
     </div>
 
@@ -384,6 +391,7 @@
     let currentProcessedCollection = [];
     
     let chartInstance1 = null;
+    let chartInstance3 = null;
     let chartInstance2 = null;
 
     let currentPage = 1;
@@ -1184,6 +1192,39 @@ let arrPiutangGlobal =
       }
 
       // =========================================================================
+      // HITUNG TREN COLLECTIONS PER BULAN (12 BULAN) UNTUK GRAFIK "TARGET & COLLECTIONS"
+      // Sumber: rawTargetPaymentData (sheet Target_Payment)
+      // Abaikan filter Bulan, tetap ikuti filter Tahun & Sales
+      // =========================================================================
+      let targetColPerBulan = new Array(12).fill(0);
+      let collectionsPerBulan = new Array(12).fill(0);
+      let sisaColPerBulan = new Array(12).fill(0);
+      let persenColPerBulan = new Array(12).fill(0);
+
+      let tpFilteredAllBulan = rawTargetPaymentData.filter(t => {
+        if (!t.Nama_Sales || !t.Nama_Sales.trim()) return false;
+        const matchYear  = selectedYear === "ALL" || (t.Tahun || "").toString().trim() === selectedYear;
+        const matchSales = selectedSales === "ALL" || t.Nama_Sales.trim() === selectedSales;
+        return matchYear && matchSales;
+      });
+
+      tpFilteredAllBulan.forEach(t => {
+        const m = parseInt(t.Bulan, 10);
+        if (m >= 1 && m <= 12) {
+          targetColPerBulan[m - 1]      += cleanNumber(t.Target_Bulanan);
+          collectionsPerBulan[m - 1]    += cleanNumber(t.Pencapaian_Real);
+        }
+      });
+
+      for (let m = 0; m < 12; m++) {
+        const sisa = targetColPerBulan[m] - collectionsPerBulan[m];
+        sisaColPerBulan[m] = sisa > 0 ? sisa : 0;
+        persenColPerBulan[m] = targetColPerBulan[m] > 0
+          ? Math.round((collectionsPerBulan[m] / targetColPerBulan[m]) * 100)
+          : (collectionsPerBulan[m] > 0 ? 100 : 0);
+      }
+
+      // =========================================================================
       // GENERATE CHART 1 (GRAFIK BATANG ACUAN NOMINAL RUPIAH DALAM JUTAAN)
       // =========================================================================
       const gridColor = isLightMode ? '#e2e8f0' : '#334155';
@@ -1268,6 +1309,69 @@ let arrPiutangGlobal =
           responsive: true, 
           maintainAspectRatio: false,
           plugins: { legend: { labels: { color: ticksColor } } }
+        }
+      });
+
+      // GENERATE CHART 3 (BATANG % CAPAIAN COLLECTIONS PER BULAN)
+      if (chartInstance3) chartInstance3.destroy();
+      chartInstance3 = new Chart(document.getElementById('chartCollections'), {
+        type: 'bar',
+        data: {
+          labels: namaBulanIndo,
+          datasets: [{
+            label: 'Collections',
+            data: collectionsPerBulan,
+
+            // Warna highlight kuning/oranye untuk bulan yang sedang difilter
+            backgroundColor: namaBulanIndo.map((bulan, index) => {
+              const angkaBulanBaris = index + 1;
+              if (selectedMonth !== "ALL" && parseInt(selectedMonth, 10) === angkaBulanBaris) {
+                return '#f59e0b'; // Kuning/Oranye untuk bulan aktif
+              }
+              return '#38bdf8'; // Biru default
+            }),
+
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const idx = context.dataIndex;
+                  const sisaText = sisaColPerBulan[idx] > 0 ? formatRupiah(sisaColPerBulan[idx]) : "🎉 GOAL / TEMBUS TARGET";
+                  return [
+                    `${persenColPerBulan[idx]}% Terpenuhi`,
+                    `Collections: ${formatRupiah(collectionsPerBulan[idx])}`,
+                    `Target: ${formatRupiah(targetColPerBulan[idx])}`,
+                    `Sisa Target: ${sisaText}`
+                  ];
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              min: 0,
+              grid: { color: gridColor },
+              ticks: {
+                color: ticksColor,
+                callback: function(value) {
+                  if (value >= 1000000000) {
+                    let nilaiM = value / 1000000000;
+                    return 'Rp ' + parseFloat(nilaiM.toFixed(1)) + ' M';
+                  } else {
+                    return 'Rp ' + (value / 1000000) + ' Jt';
+                  }
+                }
+              }
+            },
+            x: { grid: { display: false }, ticks: { color: ticksColor } }
+          }
         }
       });
 
